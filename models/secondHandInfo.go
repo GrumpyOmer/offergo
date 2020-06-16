@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 )
 
 type SecondHandInfo struct {
@@ -55,7 +55,7 @@ func (*SecondHandInfo) GetSecondHandUser(user *[]SecondHandInfo, where *SecondHa
 	}
 	getMany.Find(user)
 	if getMany.Error != nil {
-		logs.Error(getMany.Error.Error())
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 	return "查询成功", true

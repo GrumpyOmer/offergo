@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 )
 
 type OfflineCommissionVerify struct {
@@ -55,7 +55,7 @@ func (*OfflineCommissionVerify) GetOfflineCommission(user *[]OfflineCommissionVe
 
 	getOne.Find(user)
 	if getOne.Error != nil {
-		logs.Error(getOne.Error.Error())
+		log.LogInfo.Error(getOne.Error.Error())
 		return "查询失败", false
 	}
 	return "查询成功", true

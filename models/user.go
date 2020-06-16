@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 )
 
 type User struct {
@@ -152,7 +152,7 @@ func (*User) GetUser(user *[]User, where *User, sel []string, option *map[string
 
 	getMany.Find(user)
 	if getMany.Error != nil {
-		logs.Error(getMany.Error.Error())
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 	return "查询成功", true

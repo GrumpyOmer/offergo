@@ -1,9 +1,9 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 	"offergo/connect"
+	"offergo/log"
 	"strconv"
 	"time"
 )
@@ -91,7 +91,7 @@ func (*WhiteCardChannel) GetWhiteCardChannel(result *[]WhiteCardChannel, where *
 
 	getMany.Find(result)
 	if getMany.Error != nil {
-		logs.Error(getMany.Error.Error())
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 
@@ -104,7 +104,7 @@ func (*WhiteCardChannel) CreateWhiteCardChannel(data *WhiteCardChannel) (string,
 		Omit("status").
 		Create(data)
 	if create.Error != nil {
-		logs.Error(create.Error.Error())
+		log.LogInfo.Error(create.Error.Error())
 		return "添加失败", false
 	}
 	return "添加成功", true
@@ -125,7 +125,7 @@ func (*WhiteCardChannel) UpdateWhiteCardChannel(where map[string]interface{}, up
 		return "无任何更新", false
 	}
 	if updates.Error != nil {
-		logs.Error(updates.Error.Error())
+		log.LogInfo.Error(updates.Error.Error())
 		return "更新失败", false
 	}
 	return "更新成功", true

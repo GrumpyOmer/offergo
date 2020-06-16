@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 	"strconv"
 )
 
@@ -97,7 +97,7 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 	getMany = getMany.Order("invite_area ASC").Order("invite_location ASC").Order("invite_id ASC")
 	getMany.Find(result)
 	if getMany.Error != nil {
-		logs.Error(getMany.Error.Error())
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 
@@ -124,7 +124,7 @@ func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string
 		return "无任何更新", false
 	}
 	if updates.Error != nil {
-		logs.Error(updates.Error.Error())
+		log.LogInfo.Error(updates.Error.Error())
 		return "更新失败", false
 	}
 	return "更新成功", true

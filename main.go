@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"offergo/connect"
+	"offergo/log"
 	_ "offergo/routers"
 	"offergo/ws"
 	"time"
@@ -22,10 +23,29 @@ func init() {
 		}
 	}()
 }
-func main() {
+func init() {
+	//初始化日志配置
+	// JSONFormatter格式
+	log.LogInfo.SetFormatter(&logrus.JSONFormatter{
+		PrettyPrint:     false,                 //格式化
+		TimestampFormat: "2006-01-02 15:04:05", //时间格式
+	})
+
+	// 输出文件设置，默认为os.stderr
 	today := time.Now().Format("2006-01-02")
 	fileName := "logs/" + today + ".log"
-	logs.SetLogger(logs.AdapterFile, `{"filename":"`+fileName+`", "level":7, "daily":true, "maxdays":3}`)
+
+	//添加log打印行号
+	log.LogInfo.SetReportCaller(true)
+
+	// 设置日志等级 只输出不低于当前级别是日志数据
+	log.LogInfo.SetLevel(logrus.TraceLevel)
+
+	//添加钩子
+	log.LogInfo.AddHook(log.NewLfsHook(fileName, 5, 1))
+}
+func main() {
+	log.LogInfo.Error(111)
 	beego.BConfig.WebConfig.Session.SessionProvider = "file"
 	beego.BConfig.WebConfig.Session.SessionProviderConfig = "./tmp"
 	//hkok数据库连接
@@ -42,7 +62,7 @@ func main() {
 func startdb() func() {
 	err := connect.Dbconnect()
 	if err != nil {
-		logs.Info(err.Error())
+		log.LogInfo.Info(err.Error())
 		panic(err.Error())
 	}
 	return func() {
@@ -53,7 +73,7 @@ func startdb() func() {
 func starttdb() func() {
 	err := connect.Tdbconnect()
 	if err != nil {
-		logs.Info(err.Error())
+		log.LogInfo.Info(err.Error())
 		panic(err.Error())
 	}
 	return func() {
@@ -64,7 +84,7 @@ func starttdb() func() {
 func startredis() func() {
 	err := connect.InitRedis()
 	if err != nil {
-		logs.Info(err.Error())
+		log.LogInfo.Info(err.Error())
 		panic(err.Error())
 	}
 	return func() {

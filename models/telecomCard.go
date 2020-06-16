@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 	"strconv"
 )
 
@@ -91,7 +91,7 @@ func (*TelecomCard) GetTelecomCard(result *[]TelecomCard, where *TelecomCard, se
 	getMany = getMany.Preload("WhiteCardChannel")
 	getMany.Find(result)
 	if getMany.Error != nil {
-		logs.Error(getMany.Error.Error())
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 
@@ -113,7 +113,7 @@ func (*TelecomCard) UpdateTelecomCard(where map[string]interface{}, update *map[
 		return "无任何更新", false
 	}
 	if updates.Error != nil {
-		logs.Error(updates.Error.Error())
+		log.LogInfo.Error(updates.Error.Error())
 		return "更新失败", false
 	}
 	return "更新成功", true

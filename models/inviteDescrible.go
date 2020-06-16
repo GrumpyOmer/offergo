@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"offergo/connect"
+	"offergo/log"
 )
 
 type InviteDescrible struct {
@@ -30,7 +30,7 @@ func (*InviteDescrible) UpdateInviteDescribleInfo(where map[string]interface{}, 
 		return "无任何更新", false
 	}
 	if updates.Error != nil {
-		logs.Error(updates.Error.Error())
+		log.LogInfo.Error(updates.Error.Error())
 		return "更新失败", false
 	}
 	return "更新成功", true
@@ -51,7 +51,7 @@ func (*InviteDescrible) GetInviteDescribleInfo(where map[string]interface{}, des
 		return "无数据", false
 	}
 	if find.Error != nil {
-		logs.Error(find.Error.Error())
+		log.LogInfo.Error(find.Error.Error())
 		return "查找失败", false
 	}
 	return "查找成功", true
@@ -65,7 +65,7 @@ func (*InviteDescrible) AddInviteDescribleInfo(describle *InviteDescrible) (stri
 		return "新增失败", false
 	}
 	if add.Error != nil {
-		logs.Error(add.Error.Error())
+		log.LogInfo.Error(add.Error.Error())
 		return "新增失败", false
 	}
 	return "新增成功", true
