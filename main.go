@@ -45,7 +45,6 @@ func init() {
 	log.LogInfo.AddHook(log.NewLfsHook(fileName, 5, 1))
 }
 func main() {
-	log.LogInfo.Error(111)
 	beego.BConfig.WebConfig.Session.SessionProvider = "file"
 	beego.BConfig.WebConfig.Session.SessionProviderConfig = "./tmp"
 	//hkok数据库连接

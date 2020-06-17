@@ -23,3 +23,8 @@ type TakePointStruct struct {
 	TakePointLocation int    `json:"take_point_location"`
 	MethodType        int    `json:"method_type"`
 }
+
+type SearchDocumentStruct struct {
+	Html string
+	Img []string
+}

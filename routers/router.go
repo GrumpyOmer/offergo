@@ -37,8 +37,12 @@ func init() {
 
 	//document
 	document := beego.NewNamespace("/document",
-		//getDocument
+		//replaceDocument
 		beego.NSRouter("/replaceDocument", &controllers.GoQueryController{}, "Post:ReplaceDocument"),
+		// SearchDocument
+		beego.NSRouter("/searchDocument", &controllers.GoQueryController{}, "Post:SearchDocument"),
+		// ReplaceSearchDocument
+		beego.NSRouter("/replaceSearchDocument", &controllers.GoQueryController{}, "Post:ReplaceSearchDocument"),
 	)
 	//registerRouter
 	beego.AddNamespace(hkokadmin)
@@ -46,3 +50,5 @@ func init() {
 	beego.AddNamespace(document)
 
 }
+
+
