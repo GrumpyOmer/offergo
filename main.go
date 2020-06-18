@@ -8,9 +8,18 @@ import (
 	"offergo/connect"
 	"offergo/log"
 	_ "offergo/routers"
+	_ "net/http/pprof"
 	"offergo/ws"
 	"time"
 )
+
+func init() {
+	//开启协程即时监听端口
+	go func() {
+		fmt.Println("pprof start...")
+		fmt.Println(http.ListenAndServe(":9876", nil))
+	}()
+}
 
 func init() {
 	//开启websocket协程
