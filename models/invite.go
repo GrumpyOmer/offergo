@@ -129,3 +129,12 @@ func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string
 	}
 	return "更新成功", true
 }
+
+//insert many records
+func(*Invite) InsertManyRecords(sql string) (string, bool) {
+	result:= connect.Getdb().Exec(sql)
+	if result.Error == nil {
+		return "批量添加成功",true
+	}
+	return result.Error.Error(),false
+}

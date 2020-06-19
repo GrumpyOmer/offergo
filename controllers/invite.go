@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"net/http"
-	"offergo/connect"
 	"offergo/lib"
 	"offergo/models"
 )
@@ -141,8 +140,11 @@ func (i *InviteController) GetShenZhouInviteData() {
 	i.filterResult(&requestResult)
 	//先删除所有数据，再重新添加进去
 	i.deleteInviteList()
-	i.addInviteList(&requestResult.Data.TakePoint)
-	i.responseSuccess("OK")
+	result:= i.addInviteList(&requestResult.Data.TakePoint)
+	if result.code == 200 {
+		i.responseSuccess("OK")
+	}
+	i.responseError(result.msg)
 }
 
 //解析神州api响应结果
@@ -194,7 +196,7 @@ func (i *InviteController) deleteInviteList() {
 }
 
 //批量添加自取点列表
-func (*InviteController) addInviteList(invite *[]lib.TakePointStruct) {
+func (i *InviteController) addInviteList(invite *[]lib.TakePointStruct) result {
 	sql := "INSERT INTO `invite` (`invite_id`, `invite_name`, `invite_address`, `invite_area`, `api_describle`, `invite_location`) VALUES "
 	//循环切片，组合sql语句
 	for k, v := range *invite {
@@ -205,7 +207,11 @@ func (*InviteController) addInviteList(invite *[]lib.TakePointStruct) {
 			sql += fmt.Sprintf("(%d,'%s','%s','%d','%s','%d'),", v.MethodId, v.MethodName, v.TakePointAddress, v.TakePointArea, v.MethodDescription, v.TakePointLocation)
 		}
 	}
-	connect.Getdb().Exec(sql)
+	result,ok:=new(models.Invite).InsertManyRecords(sql)
+	if !ok {
+		return i.result.Error(result)
+	}
+	return i.result.Success("")
 }
 
 //修改自取点信息
