@@ -57,17 +57,17 @@ func main() {
 	beego.BConfig.WebConfig.Session.SessionProvider = "file"
 	beego.BConfig.WebConfig.Session.SessionProviderConfig = "./tmp"
 	//hkok数据库连接
-	defer startdb()()
+	defer startDb()()
 	//大k卡数据库连接
-	defer starttdb()()
-	defer startredis()()
+	defer startTelecomDb()()
+	defer startRedis()()
 	//是否开启打印sql
-	connect.Getdb().LogMode(true)
+	//connect.Getdb().LogMode(true)
 	//connect.Gettdb().LogMode(true)
 	beego.Run()
 }
 
-func startdb() func() {
+func startDb() func() {
 	err := connect.Dbconnect()
 	if err != nil {
 		log.LogInfo.Info(err.Error())
@@ -78,7 +78,7 @@ func startdb() func() {
 	}
 }
 
-func starttdb() func() {
+func startTelecomDb() func() {
 	err := connect.Tdbconnect()
 	if err != nil {
 		log.LogInfo.Info(err.Error())
@@ -89,7 +89,7 @@ func starttdb() func() {
 	}
 }
 
-func startredis() func() {
+func startRedis() func() {
 	err := connect.InitRedis()
 	if err != nil {
 		log.LogInfo.Info(err.Error())
