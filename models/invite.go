@@ -23,7 +23,7 @@ type Invite struct {
 	//地点id
 	InviteLocation int8 `json:"invite_location"`
 	// InviteDescrible 用户端自取点描述
-	InviteDescrible InviteDescrible `json:"invite_describle,omitempty"`
+	InviteDescrible InviteDescrible `json:"invite_describle,omitempty" gorm:"FOREIGNKEY:invite_id;AssociationForeignKey:invite_id"`
 }
 
 func (*Invite) TableName() string {
