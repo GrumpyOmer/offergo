@@ -158,26 +158,17 @@ func (i *InviteController) decodeApiResult(apiResult *shenZhouInviteApiResult) e
 
 //结果过滤
 func (i *InviteController) filterResult(apiResult *shenZhouInviteApiResult) {
-	//切片转换为字典
-	tempMap := map[int]lib.TakePointStruct{}
+	index := 0
 	for k, v := range apiResult.Data.TakePoint {
-		tempMap[k] = v
-	}
-
-	//遍历字典过滤 method_id 为 114、1239 和 method_type = 1的数据
-	for k, v := range tempMap {
 		if v.MethodId == 114 || v.MethodId == 1239 || v.MethodType == 1 {
-			delete(tempMap, k)
+			//直接切片内部交换 无需扩容 copy
+			temp := apiResult.Data.TakePoint[k]
+			apiResult.Data.TakePoint[k] = apiResult.Data.TakePoint[index]
+			apiResult.Data.TakePoint[index] = temp
+			index ++
 		}
 	}
-
-	//字典转换回切片
-	tempSlice := []lib.TakePointStruct{}
-	for _, v := range tempMap {
-		tempSlice = append(tempSlice, v)
-	}
-
-	apiResult.Data.TakePoint = tempSlice
+	apiResult.Data.TakePoint = apiResult.Data.TakePoint[index:]
 }
 
 func (i *InviteController) getInviteList(sel []string, where models.Invite, option *map[string]interface{}) result {
