@@ -139,7 +139,7 @@ func (g *GoQueryController) ReplaceSearchDocument() {
 		}
 	})
 
-	result, err := doc.Html()
+	result, err := doc.Find(".rich_media_content").Html()
 	if err != nil {
 		g.responseError(err.Error())
 	}
