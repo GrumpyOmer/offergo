@@ -206,41 +206,41 @@ func (i *InviteController) addInviteList(invite *[]lib.TakePointStruct) result {
 }
 
 //修改自取点信息
-func (t *InviteController) updateInviteInfo(where map[string]interface{}, update *map[string]interface{}) result {
+func (i *InviteController) updateInviteInfo(where map[string]interface{}, update *map[string]interface{}) result {
 	//修改自取点信息
 	result, ok := new(models.Invite).UpdateInviteInfo(where, update)
 	if ok != true {
-		return t.result.Error(result)
+		return i.result.Error(result)
 	}
-	return t.result.Success(nil)
+	return i.result.Success(nil)
 }
 
 //修改自取点自定义信息
-func (t *InviteController) updateInviteDescribleInfo(where map[string]interface{}, update *map[string]interface{}) result {
+func (i *InviteController) updateInviteDescribleInfo(where map[string]interface{}, update *map[string]interface{}) result {
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).UpdateInviteDescribleInfo(where, update)
 	if ok != true {
-		return t.result.Error(result)
+		return i.result.Error(result)
 	}
-	return t.result.Success(nil)
+	return i.result.Success(nil)
 }
 
 //获取自取点自定义信息
-func (t *InviteController) getInviteDescribleInfo(where map[string]interface{}, describle *models.InviteDescrible) result {
+func (i *InviteController) getInviteDescribleInfo(where map[string]interface{}, describle *models.InviteDescrible) result {
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).GetInviteDescribleInfo(where, describle)
 	if ok != true {
-		return t.result.Error(result)
+		return i.result.Error(result)
 	}
-	return t.result.Success(nil)
+	return i.result.Success(nil)
 }
 
 //新增单条自取点自定义信息
-func (t *InviteController) addInviteDescribleInfo(describle *models.InviteDescrible) result {
+func (i *InviteController) addInviteDescribleInfo(describle *models.InviteDescrible) result {
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).AddInviteDescribleInfo(describle)
 	if ok != true {
-		return t.result.Error(result)
+		return i.result.Error(result)
 	}
-	return t.result.Success(nil)
+	return i.result.Success(nil)
 }
