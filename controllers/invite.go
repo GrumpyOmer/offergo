@@ -38,17 +38,17 @@ func (i *InviteController) GetInviteList() {
 		"pageNum": pageNum,
 	}
 	option["pageInfo"] = nil
+	wheres := make(map[string]interface{})
 	if key_word != "" {
-		where := make(map[string]interface{})
-		where["invite_id = '"+key_word+"' or invite_name = '"+key_word+"'"] = nil
-		option["wheres"] = where
+		wheres["invite_id = '"+key_word+"' or invite_name = '"+key_word+"'"] = nil
 	}
 	if status_err == nil {
-		where.Status = status
+		wheres["status = ?"] = status
 	}
 	if invite_areas_err == nil {
-		where.InviteArea = invite_area
+		wheres["invite_area = ?"] = invite_area
 	}
+	option["wheres"] = wheres
 	result := i.getInviteList(sel, where, &option)
 	if result.code == 400 {
 		i.responseError(result.msg)
