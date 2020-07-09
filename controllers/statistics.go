@@ -13,24 +13,6 @@ type StatisticsController struct {
 	result
 }
 
-//当月1号0点文本时间
-var monthOneDay = lib.MonthOneDay()
-
-//当月1号0点时间戳
-var monthOneDayUnix = lib.MonthOneDayUnix()
-
-//当月最后一天文本时间
-var MonthLastDay = lib.MonthLastDay()
-
-//当月最后一天时间戳
-var MonthLastDayUnix = lib.MonthLastDayUnix()
-
-//上个月1号0点文本时间
-var LastMonthOneDay = lib.LastMonthOneDay()
-
-//上个月1号0点时间戳
-var LastMonthOneDayUnix = lib.LastMonthOneDayUnix()
-
 type statisticalFunc func(*getUserStatisticalResponseData) (bool, interface{})
 
 func (s *StatisticsController) GetUserStatistical() {
@@ -120,7 +102,7 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 	sel = []string{"openid"}
 	where = models.SecondHandInfo{}
 	//option
-	wheres["post_at <= ?"] = monthOneDay
+	wheres["post_at <= ?"] = lib.MonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBSecondHandInfo(sel, where, option)
 	if result.code == 400 {
@@ -135,7 +117,7 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 	sel = []string{"openid"}
 	where = models.SecondHandInfo{}
 	//option
-	wheres["post_at <= ?"] = LastMonthOneDay
+	wheres["post_at <= ?"] = lib.LastMonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBSecondHandInfo(sel, where, option)
 	if result.code == 400 {
@@ -226,7 +208,7 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = monthOneDay
+	wheres["created_at <= ?"] = lib.MonthOneDay()
 	wheres["iosdeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -240,7 +222,7 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = LastMonthOneDay
+	wheres["created_at <= ?"] = lib.LastMonthOneDay()
 	wheres["iosdeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -284,7 +266,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = monthOneDay
+	wheres["created_at <= ?"] = lib.MonthOneDay()
 	wheres["androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -298,7 +280,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = LastMonthOneDay
+	wheres["created_at <= ?"] = lib.LastMonthOneDay()
 	wheres["androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -342,7 +324,7 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = monthOneDay
+	wheres["created_at <= ?"] = lib.MonthOneDay()
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -356,7 +338,7 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = LastMonthOneDay
+	wheres["created_at <= ?"] = lib.LastMonthOneDay()
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
@@ -381,7 +363,7 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 //获取集运用户信息
 func (s *StatisticsController) getParcelUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
 
-	result := (&models.SzUser{}).GetStatisticsSzUser(monthOneDay, LastMonthOneDay)
+	result := (&models.SzUser{}).GetStatisticsSzUser(lib.MonthOneDay(), lib.LastMonthOneDay())
 	//字典转换为结构体
 	//转换为结构体赋值
 	tmp := interface{}(&data.MbUser)
@@ -410,7 +392,7 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = monthOneDay
+	wheres["created_at <= ?"] = lib.MonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
 	if result.code == 400 {
@@ -423,7 +405,7 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 	sel = []string{"sex"}
 	where = models.User{}
 	//option
-	wheres["created_at <= ?"] = LastMonthOneDay
+	wheres["created_at <= ?"] = lib.LastMonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
 	if result.code == 400 {
@@ -485,7 +467,7 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 
 	//获取当月1号所有付费者数量信息
 	wheres["status in (?)"] = []int{1, 2}
-	wheres["created_at <= ?"] = monthOneDayUnix
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
 	where = models.OfflineCommissionOrder{}
 	option["wheres"] = wheres
 	result = s.getDBOfflineCommissionPayUserInfo(sel, where, option)
@@ -498,7 +480,7 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 	//获取上个月1号所有付费者数量信息
 	where = models.OfflineCommissionOrder{}
 	//option
-	wheres["created_at <= ?"] = LastMonthOneDayUnix
+	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
 	option["wheres"] = wheres
 	result = s.getDBOfflineCommissionPayUserInfo(sel, where, option)
 	if result.code == 400 {
@@ -551,9 +533,9 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *getUserStatistica
 	wheres := make(map[string]interface{})
 	join := make(map[string]interface{})
 	//获取当前新申请的人数信息
-	startTime := monthOneDay
+	startTime := lib.MonthOneDay()
 	//当月最后一天时间戳
-	endTime := MonthLastDay
+	endTime := lib.MonthLastDay()
 	wheres["applications.apply_status >= ?"] = 3
 	wheres["applications.apply_status != ?"] = -1
 	wheres["user_card.type = ?"] = "BUY"
@@ -592,14 +574,14 @@ func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *getUserS
 	}
 	//获取当前已激活的的总人数数量
 	currentUser := len(result.data.([]models.TelecomUserCard))
-	wheres["created_at <= ?"] = monthOneDayUnix
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
 	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
 	if result.code == 400 {
 		return false, result.msg
 	}
 	//获取当月1号已激活大k卡用户数量
 	currentMonthUser := len(result.data.([]models.TelecomUserCard))
-	wheres["created_at <= ?"] = LastMonthOneDayUnix
+	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
 	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
 	if result.code == 400 {
 		return false, result.msg
