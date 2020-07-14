@@ -50,7 +50,7 @@ func (s *StatisticsController) GetUserStatistical() {
 	//遍历方法集合
 	for _, v := range funcs {
 		//开启goroutine
-		go func(v func(*getUserStatisticalResponseData) (bool, interface{})) {
+		go func(v statisticalFunc) {
 			defer wg.Done()
 			ok, data := v(&result)
 			if !ok {

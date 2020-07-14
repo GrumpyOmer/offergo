@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"net/http"
-	"offergo/lib"
 	"offergo/models"
 )
 
@@ -187,7 +186,7 @@ func (i *InviteController) deleteInviteList() {
 }
 
 //批量添加自取点列表
-func (i *InviteController) addInviteList(invite *[]lib.TakePointStruct) result {
+func (i *InviteController) addInviteList(invite *[]takePointStruct) result {
 	sql := "INSERT INTO `invite` (`invite_id`, `invite_name`, `invite_address`, `invite_area`, `api_describle`, `invite_location`) VALUES "
 	//循环切片，组合sql语句
 	for k, v := range *invite {

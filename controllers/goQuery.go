@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"net/http"
-	"offergo/lib"
 	"strings"
 )
 
@@ -97,7 +96,7 @@ func (g *GoQueryController) SearchDocument() {
 		src,_ := s.Attr("data-src")
 		img = append(img, src)
 	})
-	var result lib.SearchDocumentStruct
+	var result searchDocumentStruct
 	result.Html = html
 	result.Img = img
 	g.responseSuccess(result)

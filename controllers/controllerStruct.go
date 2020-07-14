@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"offergo/lib"
 	"offergo/models"
 )
 
@@ -43,8 +42,39 @@ type shenZhouInviteApiResult struct {
 }
 
 type inviteStruct struct {
-	HongKong  []lib.HongKongStruct  `json:"hong_kong"`
-	TakePoint []lib.TakePointStruct `json:"take_point"`
+	HongKong  []hongKongStruct  `json:"hong_kong"`
+	TakePoint []takePointStruct `json:"take_point"`
+}
+
+type hongKongStruct struct {
+	MethodId          int    `json:"method_id"`
+	MethodName        string `json:"method_name"`
+	MethodDescription string `json:"method_description"`
+	FirstKgFee        int    `json:"first_kg_fee"`
+	SecondKgFee       int    `json:"second_kg_fee"`
+	AdditionalFee     int    `json:"additional_fee"`
+	MethodType        int    `json:"method_type"`
+}
+
+type takePointStruct struct {
+	MethodId          int    `json:"method_id"`
+	MethodName        string `json:"method_name"`
+	MethodDescription string `json:"method_description"`
+	FirstKgFee        int    `json:"first_kg_fee"`
+	SecondKgFee       int    `json:"second_kg_fee"`
+	AdditionalFee     int    `json:"additional_fee"`
+	TakePointAddress  string `json:"take_point_address"`
+	TakePointStoreDay int    `json:"take_point_store_day"`
+	TakePointArea     int    `json:"take_point_area"`
+	TakePointLocation int    `json:"take_point_location"`
+	MethodType        int    `json:"method_type"`
+}
+
+type searchDocumentStruct struct {
+	Html string
+	Img []string
 }
 
 //telecom.go's
+
+
