@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"offergo/lib"
 	"offergo/models"
 	"strconv"
 	"strings"
@@ -8,7 +9,6 @@ import (
 
 type TelecomController struct {
 	baseController
-	result
 }
 
 //获取白卡列表
@@ -58,12 +58,12 @@ func (t *TelecomController) GetWriteCardList() {
 	}
 	option["pageInfo"] = nil
 	result := t.getDBTelecomCardInfo(sel, where, &option)
-	if result.code == 400 {
-		t.responseError(result.msg)
+	if result.Code == 400 {
+		t.responseError(result.Msg)
 	}
 	pageInfo, _ := option["pageInfo"].(models.PageStruct)
-	res := PageResult{
-		Data: result.data,
+	res := lib.PageResult{
+		Data: result.Data,
 		Page: pageInfo,
 	}
 	t.responseSuccess(res)
@@ -96,12 +96,12 @@ func (t *TelecomController) GetWhiteCardChannel() {
 	option["pageInfo"] = nil
 	option["orderBy"] = "created_at DESC"
 	result := t.getWhiteCardChannelInfo(sel, where, &option)
-	if result.code == 400 {
-		t.responseError(result.msg)
+	if result.Code == 400 {
+		t.responseError(result.Msg)
 	}
 	pageInfo, _ := option["pageInfo"].(models.PageStruct)
-	res := PageResult{
-		Data: result.data,
+	res := lib.PageResult{
+		Data: result.Data,
 		Page: pageInfo,
 	}
 	t.responseSuccess(res)
@@ -128,8 +128,8 @@ func (t *TelecomController) AddWhiteCardChannel() {
 		Balance: balanceToInt32,
 	}
 	result := t.addWhiteCardChannelInfo(&data)
-	if result.code == 400 {
-		t.responseError(result.msg)
+	if result.Code == 400 {
+		t.responseError(result.Msg)
 	}
 	t.responseSuccess(nil)
 }
@@ -150,8 +150,8 @@ func (t *TelecomController) TagWriteCardChannel() {
 	where["id = ?"] = id
 	update["status"] = status
 	result := t.updateWhiteCardChannelInfo(where, &update)
-	if result.code == 400 {
-		t.responseError(result.msg)
+	if result.Code == 400 {
+		t.responseError(result.Msg)
 	}
 	t.responseSuccess(nil)
 }
@@ -180,8 +180,8 @@ func (t *TelecomController) TagWriteCard() {
 	}
 	update["channel_id"] = whiteCardId
 	result := t.updateDBTelecomCard(where, &update)
-	if result.code == 400 {
-		t.responseError(result.msg)
+	if result.Code == 400 {
+		t.responseError(result.Msg)
 	}
 	t.responseSuccess(nil)
 }
@@ -192,18 +192,18 @@ func (t *TelecomController) getDBTelecomCardInfo(sel []string, where models.Tele
 	var resultStruct []models.TelecomCard
 	result, ok := new(models.TelecomCard).GetTelecomCard(&resultStruct, &where, sel, option)
 	if !ok {
-		return t.result.Error(result)
+		return t.error(result)
 	}
-	return t.result.Success(resultStruct)
+	return t.success(resultStruct)
 }
 
 func (t *TelecomController) updateDBTelecomCard(where map[string]interface{}, update *map[string]interface{}) result {
 	//修改卡状态
 	result, ok := new(models.TelecomCard).UpdateTelecomCard(where, update)
 	if ok != true {
-		return t.result.Error(result)
+		t.error(result)
 	}
-	return t.result.Success(nil)
+	return t.success(nil)
 }
 
 func (t *TelecomController) getWhiteCardChannelInfo(sel []string, where models.WhiteCardChannel, option *map[string]interface{}) result {
@@ -212,25 +212,25 @@ func (t *TelecomController) getWhiteCardChannelInfo(sel []string, where models.W
 	var resultStruct []models.WhiteCardChannel
 	result, ok := new(models.WhiteCardChannel).GetWhiteCardChannel(&resultStruct, &where, sel, option)
 	if !ok {
-		return t.result.Error(result)
+		t.error(result)
 	}
-	return t.result.Success(resultStruct)
+	return t.success(resultStruct)
 }
 
 func (t *TelecomController) addWhiteCardChannelInfo(data *models.WhiteCardChannel) result {
 	//新增白卡渠道信息
 	result, ok := new(models.WhiteCardChannel).CreateWhiteCardChannel(data)
 	if !ok {
-		return t.result.Error(result)
+		t.error(result)
 	}
-	return t.result.Success(nil)
+	return t.success(nil)
 }
 
 func (t *TelecomController) updateWhiteCardChannelInfo(where map[string]interface{}, update *map[string]interface{}) result {
 	//修改白卡渠道状态
 	result, ok := new(models.WhiteCardChannel).UpdateWhiteCardChannel(where, update)
 	if ok != true {
-		return t.result.Error(result)
+		t.error(result)
 	}
-	return t.result.Success(nil)
+	return t.success(nil)
 }

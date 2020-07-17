@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"time"
 )
+
 //全局通用log实例
 var LogInfo = logrus.New()
 

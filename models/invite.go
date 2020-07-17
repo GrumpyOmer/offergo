@@ -131,10 +131,10 @@ func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string
 }
 
 //insert many records
-func(*Invite) InsertManyRecords(sql string) (string, bool) {
-	result:= connect.Getdb().Exec(sql)
+func (*Invite) InsertManyRecords(sql string) (string, bool) {
+	result := connect.Getdb().Exec(sql)
 	if result.Error == nil {
-		return "批量添加成功",true
+		return "批量添加成功", true
 	}
-	return result.Error.Error(),false
+	return result.Error.Error(), false
 }

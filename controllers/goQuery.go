@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"net/http"
+	"offergo/lib"
 	"strings"
 )
 
 type GoQueryController struct {
 	baseController
-	result
 }
 
 //反序列化存放结构体
@@ -64,7 +64,7 @@ func (g *GoQueryController) SearchDocument() {
 	url := g.Input().Get("url")
 	//必传参数验证
 	validation := map[string]interface{}{
-		"url":          url,
+		"url": url,
 	}
 	g.requestFilter(validation)
 
@@ -86,17 +86,17 @@ func (g *GoQueryController) SearchDocument() {
 	var img []string
 	// 抓取对应的html
 	doc.Find(".rich_media_content").Each(func(i int, s *goquery.Selection) {
-		html,_ = s.Html()
+		html, _ = s.Html()
 	})
 	//去除换行
-	html = strings.Replace(html,"\n", "", -1)
+	html = strings.Replace(html, "\n", "", -1)
 
 	//抓取对应的img地址
 	doc.Find(".rich_media_content section section section section img").Each(func(i int, s *goquery.Selection) {
-		src,_ := s.Attr("data-src")
+		src, _ := s.Attr("data-src")
 		img = append(img, src)
 	})
-	var result searchDocumentStruct
+	var result lib.SearchDocumentStruct
 	result.Html = html
 	result.Img = img
 	g.responseSuccess(result)

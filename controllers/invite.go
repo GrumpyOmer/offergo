@@ -7,12 +7,12 @@ import (
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"net/http"
+	"offergo/lib"
 	"offergo/models"
 )
 
 type InviteController struct {
 	baseController
-	result
 }
 
 //获取自取点列表
@@ -49,12 +49,12 @@ func (i *InviteController) GetInviteList() {
 	}
 	option["wheres"] = wheres
 	result := i.getInviteList(sel, where, &option)
-	if result.code == 400 {
-		i.responseError(result.msg)
+	if result.Code == 400 {
+		i.responseError(result.Msg)
 	}
 	pageInfo, _ := option["pageInfo"].(models.PageStruct)
-	res := PageResult{
-		Data: result.data,
+	res := lib.PageResult{
+		Data: result.Data,
 		Page: pageInfo,
 	}
 	i.responseSuccess(res)
@@ -80,8 +80,8 @@ func (i *InviteController) UpdateShenZhouInviteData() {
 		where["invite_id = ?"] = invite_id
 		update["status"] = status
 		result := i.updateInviteInfo(where, &update)
-		if result.code == 400 {
-			i.responseError(result.msg)
+		if result.Code == 400 {
+			i.responseError(result.Msg)
 		}
 	} else if user_describle != "" {
 		//修改/新增自定义自取点描述
@@ -91,20 +91,20 @@ func (i *InviteController) UpdateShenZhouInviteData() {
 		where["invite_id = ?"] = invite_id
 		data := models.InviteDescrible{}
 		searchResult := i.getInviteDescribleInfo(where, &data)
-		if searchResult.code == 400 && searchResult.msg == "无数据" {
+		if searchResult.Code == 400 && searchResult.Msg == "无数据" {
 			//不存在 直接新增
 			data.InviteID = invite_id
 			data.UserDescrible = user_describle
 			result := i.addInviteDescribleInfo(&data)
-			if result.code == 400 {
-				i.responseError(result.msg)
+			if result.Code == 400 {
+				i.responseError(result.Msg)
 			}
 		} else {
 			//存在 直接更新
 			update["user_describle"] = user_describle
 			result := i.updateInviteDescribleInfo(where, &update)
-			if result.code == 400 {
-				i.responseError(result.msg)
+			if result.Code == 400 {
+				i.responseError(result.Msg)
 			}
 		}
 	} else {
@@ -129,7 +129,7 @@ func (i *InviteController) GetShenZhouInviteData() {
 		i.responseError(err.Error())
 	}
 	//解析结果
-	var requestResult shenZhouInviteApiResult
+	var requestResult lib.ShenZhouInviteApiResult
 	json.Unmarshal(body, &requestResult)
 	err = i.decodeApiResult(&requestResult)
 	if err != nil {
@@ -139,15 +139,15 @@ func (i *InviteController) GetShenZhouInviteData() {
 	i.filterResult(&requestResult)
 	//先删除所有数据，再重新添加进去
 	i.deleteInviteList()
-	result:= i.addInviteList(&requestResult.Data.TakePoint)
-	if result.code == 200 {
+	result := i.addInviteList(&requestResult.Data.TakePoint)
+	if result.Code == 200 {
 		i.responseSuccess("OK")
 	}
-	i.responseError(result.msg)
+	i.responseError(result.Msg)
 }
 
 //解析神州api响应结果
-func (i *InviteController) decodeApiResult(apiResult *shenZhouInviteApiResult) error {
+func (i *InviteController) decodeApiResult(apiResult *lib.ShenZhouInviteApiResult) error {
 	if apiResult.Code != 200 {
 		//神州请求出错
 		return errors.New(apiResult.Msg)
@@ -156,7 +156,7 @@ func (i *InviteController) decodeApiResult(apiResult *shenZhouInviteApiResult) e
 }
 
 //结果过滤
-func (i *InviteController) filterResult(apiResult *shenZhouInviteApiResult) {
+func (i *InviteController) filterResult(apiResult *lib.ShenZhouInviteApiResult) {
 	index := 0
 	for k, v := range apiResult.Data.TakePoint {
 		if v.MethodId == 114 || v.MethodId == 1239 || v.MethodType == 1 {
@@ -164,7 +164,7 @@ func (i *InviteController) filterResult(apiResult *shenZhouInviteApiResult) {
 			temp := apiResult.Data.TakePoint[k]
 			apiResult.Data.TakePoint[k] = apiResult.Data.TakePoint[index]
 			apiResult.Data.TakePoint[index] = temp
-			index ++
+			index++
 		}
 	}
 	apiResult.Data.TakePoint = apiResult.Data.TakePoint[index:]
@@ -176,9 +176,9 @@ func (i *InviteController) getInviteList(sel []string, where models.Invite, opti
 	var resultStruct []models.Invite
 	result, ok := new(models.Invite).GetInviteList(&resultStruct, &where, sel, option)
 	if !ok {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success(resultStruct)
+	return i.success(resultStruct)
 }
 
 func (i *InviteController) deleteInviteList() {
@@ -186,7 +186,7 @@ func (i *InviteController) deleteInviteList() {
 }
 
 //批量添加自取点列表
-func (i *InviteController) addInviteList(invite *[]takePointStruct) result {
+func (i *InviteController) addInviteList(invite *[]lib.TakePointStruct) result {
 	sql := "INSERT INTO `invite` (`invite_id`, `invite_name`, `invite_address`, `invite_area`, `api_describle`, `invite_location`) VALUES "
 	//循环切片，组合sql语句
 	for k, v := range *invite {
@@ -197,11 +197,11 @@ func (i *InviteController) addInviteList(invite *[]takePointStruct) result {
 			sql += fmt.Sprintf("(%d,'%s','%s','%d','%s','%d'),", v.MethodId, v.MethodName, v.TakePointAddress, v.TakePointArea, v.MethodDescription, v.TakePointLocation)
 		}
 	}
-	result,ok:=new(models.Invite).InsertManyRecords(sql)
+	result, ok := new(models.Invite).InsertManyRecords(sql)
 	if !ok {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success("")
+	return i.success("")
 }
 
 //修改自取点信息
@@ -209,9 +209,9 @@ func (i *InviteController) updateInviteInfo(where map[string]interface{}, update
 	//修改自取点信息
 	result, ok := new(models.Invite).UpdateInviteInfo(where, update)
 	if ok != true {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success(nil)
+	return i.success(nil)
 }
 
 //修改自取点自定义信息
@@ -219,9 +219,9 @@ func (i *InviteController) updateInviteDescribleInfo(where map[string]interface{
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).UpdateInviteDescribleInfo(where, update)
 	if ok != true {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success(nil)
+	return i.success(nil)
 }
 
 //获取自取点自定义信息
@@ -229,9 +229,9 @@ func (i *InviteController) getInviteDescribleInfo(where map[string]interface{}, 
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).GetInviteDescribleInfo(where, describle)
 	if ok != true {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success(nil)
+	return i.success(nil)
 }
 
 //新增单条自取点自定义信息
@@ -239,7 +239,7 @@ func (i *InviteController) addInviteDescribleInfo(describle *models.InviteDescri
 	//修改自取点自定义信息
 	result, ok := new(models.InviteDescrible).AddInviteDescribleInfo(describle)
 	if ok != true {
-		return i.result.Error(result)
+		return i.error(result)
 	}
-	return i.result.Success(nil)
+	return i.success(nil)
 }

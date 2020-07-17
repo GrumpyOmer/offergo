@@ -10,10 +10,9 @@ import (
 
 type StatisticsController struct {
 	baseController
-	result
 }
 
-type statisticalFunc func(*getUserStatisticalResponseData) (bool, interface{})
+type statisticalFunc func(*lib.GetUserStatisticalResponseData) (bool, interface{})
 
 func (s *StatisticsController) GetUserStatistical() {
 
@@ -34,7 +33,7 @@ func (s *StatisticsController) GetUserStatistical() {
 		"TelecomNewUser":               s.getTelecomCardNewUserInfo,           //新申请的大k卡用户信息
 	}
 	//定义响应结构体
-	var result getUserStatisticalResponseData
+	var result lib.GetUserStatisticalResponseData
 	//获取结构体字段数量
 	resultNum := reflect.TypeOf(result).NumField()
 	/**
@@ -72,14 +71,14 @@ func (s *StatisticsController) GetUserStatistical() {
 		for data := range errorChannel {
 			err += data
 		}
-		s.baseController.responseError(err)
+		s.responseError(err)
 
 	}
-	s.baseController.responseSuccess(result)
+	s.responseSuccess(result)
 }
 
 //二手市场用户信息
-func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getSecondHandUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取二手用户数据
 	//获取当前二手用户数量
 	sel := []string{"openid"}
@@ -89,11 +88,11 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 	wheres := make(map[string]interface{})
 	option["wheres"] = wheres
 	result := s.getDBSecondHandInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//去重操作
-	DuplicateRemoval := lib.DuplicateRemoval(result.data.([]models.SecondHandInfo), result.data.([]models.SecondHandInfo)[0])
+	DuplicateRemoval := lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
 	//拿到当前二手用户数量
 	currentUser := len(DuplicateRemoval.([]models.SecondHandInfo))
 
@@ -105,11 +104,11 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 	wheres["post_at <= ?"] = lib.MonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBSecondHandInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//去重操作
-	DuplicateRemoval = lib.DuplicateRemoval(result.data.([]models.SecondHandInfo), result.data.([]models.SecondHandInfo)[0])
+	DuplicateRemoval = lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
 	//拿到当月1号二手用户数量
 	currentMonthUser := len(DuplicateRemoval.([]models.SecondHandInfo))
 
@@ -120,16 +119,16 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 	wheres["post_at <= ?"] = lib.LastMonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBSecondHandInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//去重操作
-	DuplicateRemoval = lib.DuplicateRemoval(result.data.([]models.SecondHandInfo), result.data.([]models.SecondHandInfo)[0])
+	DuplicateRemoval = lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
 	//拿到上个月1号二手用户数量
 	lastMonthUser := len(DuplicateRemoval.([]models.SecondHandInfo))
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.SecondHandUser = getUserStatisticalStruct{
+	data.SecondHandUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -140,7 +139,7 @@ func (s *StatisticsController) getSecondHandUserInfo(data *getUserStatisticalRes
 }
 
 //工作板块用户信息
-func (s *StatisticsController) getJobUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取工作板块用户数据
 	sel := []string{"sex"}
 	where := models.User{}
@@ -151,11 +150,11 @@ func (s *StatisticsController) getJobUserInfo(data *getUserStatisticalResponseDa
 	wheres["openid IS NOT NUll"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
-	CurrentUser := len(result.data.([]models.User))
-	data.JobBookUser = getUserStatisticalStruct{
+	CurrentUser := len(result.Data.([]models.User))
+	data.JobBookUser = lib.GetUserStatisticalStruct{
 		CurrentUser: CurrentUser,
 		Text:        "工作板块订阅用户",
 	}
@@ -163,7 +162,7 @@ func (s *StatisticsController) getJobUserInfo(data *getUserStatisticalResponseDa
 }
 
 //活动板块用户信息
-func (s *StatisticsController) getActivityUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getActivityUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取工作板块用户数据
 	sel := []string{"sex"}
 	where := models.User{}
@@ -174,11 +173,11 @@ func (s *StatisticsController) getActivityUserInfo(data *getUserStatisticalRespo
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
-	CurrentUser := len(result.data.([]models.User))
-	data.ActiveBookUser = getUserStatisticalStruct{
+	CurrentUser := len(result.Data.([]models.User))
+	data.ActiveBookUser = lib.GetUserStatisticalStruct{
 		CurrentUser: CurrentUser,
 		Text:        "活动板块订阅用户",
 	}
@@ -186,7 +185,7 @@ func (s *StatisticsController) getActivityUserInfo(data *getUserStatisticalRespo
 }
 
 //ios用户信息
-func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getIosUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取ios用户数据
 	//获取当前ios用户数量
 	sel := []string{"sex"}
@@ -197,11 +196,11 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 	wheres["iosdeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当前ios用户数量
-	currentUser := len(result.data.([]models.User))
+	currentUser := len(result.Data.([]models.User))
 
 	//获取当月1号ios用户数量
 
@@ -212,11 +211,11 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 	wheres["iosdeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当月1号ios用户数量
-	currentMonthUser := len(result.data.([]models.User))
+	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号ios数量
 	sel = []string{"sex"}
@@ -226,14 +225,14 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 	wheres["iosdeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到上个月1号ios用户数量
-	lastMonthUser := len(result.data.([]models.User))
+	lastMonthUser := len(result.Data.([]models.User))
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.IosUser = getUserStatisticalStruct{
+	data.IosUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -244,7 +243,7 @@ func (s *StatisticsController) getIosUserInfo(data *getUserStatisticalResponseDa
 }
 
 //android用户信息
-func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getAndroidUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取android用户数据
 	//获取当前android用户数量
 	sel := []string{"sex"}
@@ -255,11 +254,11 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 	wheres["androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当前android用户数量
-	currentUser := len(result.data.([]models.User))
+	currentUser := len(result.Data.([]models.User))
 
 	//获取当月1号android用户数量
 
@@ -270,11 +269,11 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 	wheres["androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当月1号android用户数量
-	currentMonthUser := len(result.data.([]models.User))
+	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号android数量
 	sel = []string{"sex"}
@@ -284,14 +283,14 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 	wheres["androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到上个月1号android用户数量
-	lastMonthUser := len(result.data.([]models.User))
+	lastMonthUser := len(result.Data.([]models.User))
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.AndroidUser = getUserStatisticalStruct{
+	data.AndroidUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -302,7 +301,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *getUserStatisticalRespon
 }
 
 //微信用户信息
-func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取微信用户数据
 	//获取当前用户数量
 	sel := []string{"sex"}
@@ -313,11 +312,11 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当前微信用户数量
-	currentUser := len(result.data.([]models.User))
+	currentUser := len(result.Data.([]models.User))
 
 	//获取当月1号微信用户数量
 
@@ -328,11 +327,11 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当月1号微信用户数量
-	currentMonthUser := len(result.data.([]models.User))
+	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号微信数量
 	sel = []string{"sex"}
@@ -342,15 +341,15 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 	wheres["openid IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 
 	//拿到上个月1号微信用户数量
-	lastMonthUser := len(result.data.([]models.User))
+	lastMonthUser := len(result.Data.([]models.User))
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.WxUser = getUserStatisticalStruct{
+	data.WxUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -361,7 +360,7 @@ func (s *StatisticsController) getWechatUserInfo(data *getUserStatisticalRespons
 }
 
 //获取集运用户信息
-func (s *StatisticsController) getParcelUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getParcelUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 
 	result := (&models.SzUser{}).GetStatisticsSzUser(lib.MonthOneDay(), lib.LastMonthOneDay())
 	//字典转换为结构体
@@ -372,7 +371,7 @@ func (s *StatisticsController) getParcelUserInfo(data *getUserStatisticalRespons
 }
 
 //获取app总用户数量
-func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"sex"}
 	where := models.User{}
 	option := make(map[string]interface{})
@@ -382,11 +381,11 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 	wheres["iosdeviceToken IS NOT NULL or androiddeviceToken IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//当前用户数量
-	currentUser := len(result.data.([]models.User))
+	currentUser := len(result.Data.([]models.User))
 	//获取当月1号APP用户数量
 
 	sel = []string{"sex"}
@@ -395,11 +394,11 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 	wheres["created_at <= ?"] = lib.MonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到当月1号App用户数量
-	currentMonthUser := len(result.data.([]models.User))
+	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号APP用户数量
 	sel = []string{"sex"}
@@ -408,15 +407,15 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 	wheres["created_at <= ?"] = lib.LastMonthOneDay()
 	option["wheres"] = wheres
 	result = s.getDBUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到上个月1号APP用户数量
-	lastMonthUser := len(result.data.([]models.User))
+	lastMonthUser := len(result.Data.([]models.User))
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.AppUser = getUserStatisticalStruct{
+	data.AppUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -427,7 +426,7 @@ func (s *StatisticsController) getAllAppUserInfo(data *getUserStatisticalRespons
 }
 
 //获取待寄待取发布者用户信息
-func (s *StatisticsController) getOfflineCommissionPublishUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getOfflineCommissionPublishUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"id"}
 	where := models.OfflineCommissionVerify{}
 	option := make(map[string]interface{})
@@ -437,12 +436,12 @@ func (s *StatisticsController) getOfflineCommissionPublishUserInfo(data *getUser
 	wheres["completion_times > ?"] = 0
 	option["wheres"] = wheres
 	result := s.getDBOfflineCommissionPublishUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取发布者数量
-	currentUser := len(result.data.([]models.OfflineCommissionVerify))
-	data.OfflineCommissionPublishUser = getUserStatisticalStruct{
+	currentUser := len(result.Data.([]models.OfflineCommissionVerify))
+	data.OfflineCommissionPublishUser = lib.GetUserStatisticalStruct{
 		CurrentUser: currentUser,
 		Text:        "待寄待取发布者",
 	}
@@ -450,7 +449,7 @@ func (s *StatisticsController) getOfflineCommissionPublishUserInfo(data *getUser
 }
 
 //获取待寄待取付费者用户信息
-func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"distinct(user_id)"}
 	where := models.OfflineCommissionOrder{}
 	option := make(map[string]interface{})
@@ -459,11 +458,11 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 	wheres["status in (?)"] = []int{1, 2}
 	option["wheres"] = wheres
 	result := s.getDBOfflineCommissionPayUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当前所有付费者数量信息
-	currentUser := len(result.data.([]models.OfflineCommissionOrder))
+	currentUser := len(result.Data.([]models.OfflineCommissionOrder))
 
 	//获取当月1号所有付费者数量信息
 	wheres["status in (?)"] = []int{1, 2}
@@ -471,11 +470,11 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 	where = models.OfflineCommissionOrder{}
 	option["wheres"] = wheres
 	result = s.getDBOfflineCommissionPayUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当月1号所有付费者数量信息
-	currentMonthUser := len(result.data.([]models.OfflineCommissionOrder))
+	currentMonthUser := len(result.Data.([]models.OfflineCommissionOrder))
 
 	//获取上个月1号所有付费者数量信息
 	where = models.OfflineCommissionOrder{}
@@ -483,15 +482,15 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
 	option["wheres"] = wheres
 	result = s.getDBOfflineCommissionPayUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//拿到上个月1号所有付费者数量信息
-	lastMonthUser := len(result.data.([]models.OfflineCommissionOrder))
+	lastMonthUser := len(result.Data.([]models.OfflineCommissionOrder))
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.OfflineCommissionPayUser = getUserStatisticalStruct{
+	data.OfflineCommissionPayUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -502,7 +501,7 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *getUserStat
 }
 
 //获取大K卡正在使用的人数
-func (s *StatisticsController) getTelecomCardUseingUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getTelecomCardUseingUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"id"}
 	where := models.TelecomUserCard{}
 	option := make(map[string]interface{})
@@ -513,12 +512,12 @@ func (s *StatisticsController) getTelecomCardUseingUserInfo(data *getUserStatist
 	wheres["type != ?"] = "TEST"
 	option["wheres"] = wheres
 	result := s.getDBTelecomCardUsingUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当前所有付费者数量数量
-	currentUser := len(result.data.([]models.TelecomUserCard))
-	data.TelecomUsingUser = getUserStatisticalStruct{
+	currentUser := len(result.Data.([]models.TelecomUserCard))
+	data.TelecomUsingUser = lib.GetUserStatisticalStruct{
 		CurrentUser: currentUser,
 		Text:        "大K卡正在使用人数",
 	}
@@ -526,7 +525,7 @@ func (s *StatisticsController) getTelecomCardUseingUserInfo(data *getUserStatist
 }
 
 //获取大K卡新申请的人数
-func (s *StatisticsController) getTelecomCardNewUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"user_card.id"}
 	where := models.TelecomUserCard{}
 	option := make(map[string]interface{})
@@ -546,12 +545,12 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *getUserStatistica
 	option["wheres"] = wheres
 	option["join"] = join
 	result := s.getDBTelecomCardUsingUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当前新申请的人数数量
-	currentUser := len(result.data.([]models.TelecomUserCard))
-	data.TelecomNewUser = getUserStatisticalStruct{
+	currentUser := len(result.Data.([]models.TelecomUserCard))
+	data.TelecomNewUser = lib.GetUserStatisticalStruct{
 		CurrentUser: currentUser,
 		Text:        "大K卡新申请人数",
 	}
@@ -559,7 +558,7 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *getUserStatistica
 }
 
 //获取大K卡已激活的总人数
-func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *getUserStatisticalResponseData) (bool, interface{}) {
+func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"user_card.id"}
 	where := models.TelecomUserCard{}
 	option := make(map[string]interface{})
@@ -569,29 +568,29 @@ func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *getUserS
 	wheres["activate_date IS NOT NULL"] = nil
 	option["wheres"] = wheres
 	result := s.getDBTelecomCardUsingUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当前已激活的的总人数数量
-	currentUser := len(result.data.([]models.TelecomUserCard))
+	currentUser := len(result.Data.([]models.TelecomUserCard))
 	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
 	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取当月1号已激活大k卡用户数量
-	currentMonthUser := len(result.data.([]models.TelecomUserCard))
+	currentMonthUser := len(result.Data.([]models.TelecomUserCard))
 	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
 	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
-	if result.code == 400 {
-		return false, result.msg
+	if result.Code == 400 {
+		return false, result.Msg
 	}
 	//获取上月1号已激活大k卡用户数量
-	lastMonthUser := len(result.data.([]models.TelecomUserCard))
+	lastMonthUser := len(result.Data.([]models.TelecomUserCard))
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
-	data.TelecomCardActivationedUser = getUserStatisticalStruct{
+	data.TelecomCardActivationedUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -608,9 +607,9 @@ func (s *StatisticsController) getDBUserInfo(sel []string, where models.User, op
 
 	result, ok := new(models.User).GetUser(&user, &where, sel, &option)
 	if !ok {
-		return s.result.Error(result)
+		return s.error(result)
 	}
-	return s.result.Success(user)
+	return s.success(user)
 }
 
 func (s *StatisticsController) getDBSecondHandInfo(sel []string, where models.SecondHandInfo, option map[string]interface{}) result {
@@ -620,9 +619,9 @@ func (s *StatisticsController) getDBSecondHandInfo(sel []string, where models.Se
 
 	result, ok := new(models.SecondHandInfo).GetSecondHandUser(&resultStruct, &where, sel, &option)
 	if !ok {
-		return s.result.Error(result)
+		return s.error(result)
 	}
-	return s.result.Success(resultStruct)
+	return s.success(resultStruct)
 }
 
 func (s *StatisticsController) getDBOfflineCommissionPublishUserInfo(sel []string, where models.OfflineCommissionVerify, option map[string]interface{}) result {
@@ -632,9 +631,9 @@ func (s *StatisticsController) getDBOfflineCommissionPublishUserInfo(sel []strin
 
 	result, ok := new(models.OfflineCommissionVerify).GetOfflineCommission(&resultStruct, &where, sel, &option)
 	if !ok {
-		return s.result.Error(result)
+		return s.error(result)
 	}
-	return s.result.Success(resultStruct)
+	return s.success(resultStruct)
 }
 
 func (s *StatisticsController) getDBOfflineCommissionPayUserInfo(sel []string, where models.OfflineCommissionOrder, option map[string]interface{}) result {
@@ -644,9 +643,9 @@ func (s *StatisticsController) getDBOfflineCommissionPayUserInfo(sel []string, w
 
 	result, ok := new(models.OfflineCommissionOrder).GetOfflineCommission(&resultStruct, &where, sel, &option)
 	if !ok {
-		return s.result.Error(result)
+		return s.error(result)
 	}
-	return s.result.Success(resultStruct)
+	return s.success(resultStruct)
 }
 
 func (s *StatisticsController) getDBTelecomCardUsingUserInfo(sel []string, where models.TelecomUserCard, option map[string]interface{}) result {
@@ -656,9 +655,9 @@ func (s *StatisticsController) getDBTelecomCardUsingUserInfo(sel []string, where
 
 	result, ok := new(models.TelecomUserCard).GetTelecomUser(&resultStruct, &where, sel, &option)
 	if !ok {
-		return s.result.Error(result)
+		return s.error(result)
 	}
-	return s.result.Success(resultStruct)
+	return s.success(resultStruct)
 }
 
 //计算增长率
