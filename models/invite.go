@@ -2,6 +2,7 @@ package models
 
 import (
 	"offergo/connect"
+	"offergo/lib"
 	"offergo/log"
 	"strconv"
 )
@@ -72,14 +73,14 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 
 	//page
 	if data, ok := (*option)["page"]; ok {
-		PageNum := PAGENUM
+		PageNum := lib.PAGENUM
 		page, _ := data.(map[string]interface{})
 		pageToString, _ := page["page"].(string)
 		currentPage, _ := strconv.Atoi(pageToString)
 		//总条数
 		var total float64
 		getMany.Count(&total)
-		var getInfo PageStruct
+		var getInfo lib.PageStruct
 		if pageNum, ok := page["pageNum"]; ok && pageNum != "" {
 			pageNumToString, _ := pageNum.(string)
 			pageNumToInt, _ := strconv.Atoi(pageNumToString)
@@ -90,7 +91,7 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 			getMany = getMany.Offset((currentPage - 1) * PageNum).Limit(PageNum)
 		}
 		//获取分页信息
-		new(PageStruct).getPage(total, currentPage, &getInfo, PageNum)
+		new(lib.PageStruct).GetPage(total, currentPage, &getInfo, PageNum)
 		(*option)["pageInfo"] = getInfo
 	}
 	getMany = getMany.Preload("InviteDescrible")
@@ -131,10 +132,10 @@ func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string
 }
 
 //insert many records
-func (*Invite) InsertManyRecords(sql string) (string, bool) {
-	result := connect.Getdb().Exec(sql)
+func(*Invite) InsertManyRecords(sql string) (string, bool) {
+	result:= connect.Getdb().Exec(sql)
 	if result.Error == nil {
-		return "批量添加成功", true
+		return "批量添加成功",true
 	}
-	return result.Error.Error(), false
+	return result.Error.Error(),false
 }

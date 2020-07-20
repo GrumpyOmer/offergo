@@ -4,18 +4,6 @@ import (
 	"github.com/astaxie/beego"
 )
 
-type initController interface {
-	//成功响应方法
-	responseSuccess(interface{})
-	//失败响应方法
-	responseError(string)
-	//请求数据过滤方法
-	requestFilter(map[string]interface{}) bool
-	//成功调用
-	success(interface{})
-	//失败调用
-	srror(interface{})
-}
 
 //响应结构体
 type result struct {
@@ -26,7 +14,6 @@ type result struct {
 
 type baseController struct {
 	beego.Controller
-	initController
 }
 
 //response:success

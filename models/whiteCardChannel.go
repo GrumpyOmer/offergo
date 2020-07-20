@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 	"offergo/connect"
+	"offergo/lib"
 	"offergo/log"
 	"strconv"
 	"time"
@@ -67,14 +68,14 @@ func (*WhiteCardChannel) GetWhiteCardChannel(result *[]WhiteCardChannel, where *
 
 	//page
 	if data, ok := (*option)["page"]; ok {
-		PageNum := PAGENUM
+		PageNum := lib.PAGENUM
 		page, _ := data.(map[string]interface{})
 		pageToString, _ := page["page"].(string)
 		currentPage, _ := strconv.Atoi(pageToString)
 		//总条数
 		var total float64
 		getMany.Count(&total)
-		var getInfo PageStruct
+		var getInfo lib.PageStruct
 		if pageNum, ok := page["pageNum"]; ok && pageNum != "" {
 			pageNumToString, _ := pageNum.(string)
 			pageNumToInt, _ := strconv.Atoi(pageNumToString)
@@ -85,7 +86,7 @@ func (*WhiteCardChannel) GetWhiteCardChannel(result *[]WhiteCardChannel, where *
 			getMany = getMany.Offset((currentPage - 1) * PageNum).Limit(PageNum)
 		}
 		//获取分页信息
-		new(PageStruct).getPage(total, currentPage, &getInfo, PageNum)
+		new(lib.PageStruct).GetPage(total, currentPage, &getInfo, PageNum)
 		(*option)["pageInfo"] = getInfo
 	}
 

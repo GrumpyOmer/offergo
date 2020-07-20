@@ -2,6 +2,7 @@ package models
 
 import (
 	"offergo/connect"
+	"offergo/lib"
 	"offergo/log"
 	"strconv"
 )
@@ -66,14 +67,14 @@ func (*TelecomCard) GetTelecomCard(result *[]TelecomCard, where *TelecomCard, se
 
 	//page
 	if data, ok := (*option)["page"]; ok && data != "" {
-		PageNum := PAGENUM
+		PageNum := lib.PAGENUM
 		page, _ := data.(map[string]interface{})
 		pageToString, _ := page["page"].(string)
 		currentPage, _ := strconv.Atoi(pageToString)
 		//总条数
 		var total float64
 		getMany.Count(&total)
-		var getInfo PageStruct
+		var getInfo lib.PageStruct
 		if pageNum, ok := page["pageNum"]; ok && pageNum != "" {
 			pageNumToString, _ := pageNum.(string)
 			pageNumToInt, _ := strconv.Atoi(pageNumToString)
@@ -84,7 +85,7 @@ func (*TelecomCard) GetTelecomCard(result *[]TelecomCard, where *TelecomCard, se
 			getMany = getMany.Offset((currentPage - 1) * PageNum).Limit(PageNum)
 		}
 		//获取分页信息
-		new(PageStruct).getPage(total, currentPage, &getInfo, PageNum)
+		new(lib.PageStruct).GetPage(total, currentPage, &getInfo, PageNum)
 		(*option)["pageInfo"] = getInfo
 	}
 

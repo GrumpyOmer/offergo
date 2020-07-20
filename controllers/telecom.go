@@ -61,7 +61,7 @@ func (t *TelecomController) GetWriteCardList() {
 	if result.Code == 400 {
 		t.responseError(result.Msg)
 	}
-	pageInfo, _ := option["pageInfo"].(models.PageStruct)
+	pageInfo, _ := option["pageInfo"].(lib.PageStruct)
 	res := lib.PageResult{
 		Data: result.Data,
 		Page: pageInfo,
@@ -99,7 +99,7 @@ func (t *TelecomController) GetWhiteCardChannel() {
 	if result.Code == 400 {
 		t.responseError(result.Msg)
 	}
-	pageInfo, _ := option["pageInfo"].(models.PageStruct)
+	pageInfo, _ := option["pageInfo"].(lib.PageStruct)
 	res := lib.PageResult{
 		Data: result.Data,
 		Page: pageInfo,

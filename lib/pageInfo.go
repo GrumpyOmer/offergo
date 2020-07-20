@@ -1,4 +1,4 @@
-package models
+package lib
 
 import (
 	"math"
@@ -18,7 +18,7 @@ type PageStruct struct {
 }
 
 //获取自定义分页信息
-func (p *PageStruct) getPage(total float64, currentPage int, pageInfo *PageStruct, PageNum int) {
+func (p *PageStruct) GetPage(total float64, currentPage int, pageInfo *PageStruct, PageNum int) {
 	//getPageInfo
 	//总条数
 	pageInfo.Total = total

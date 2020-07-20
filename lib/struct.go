@@ -1,9 +1,5 @@
 package lib
 
-import (
-	"offergo/models"
-)
-
 //statistics.go's
 type GetUserStatisticalStruct struct {
 	CurrentUser      int
@@ -31,7 +27,7 @@ type GetUserStatisticalResponseData struct {
 //page's struct
 type PageResult struct {
 	Data interface{}
-	Page models.PageStruct
+	Page PageStruct
 }
 
 //shenZhouInvite's api struct

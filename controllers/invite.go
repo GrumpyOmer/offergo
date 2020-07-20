@@ -52,7 +52,7 @@ func (i *InviteController) GetInviteList() {
 	if result.Code == 400 {
 		i.responseError(result.Msg)
 	}
-	pageInfo, _ := option["pageInfo"].(models.PageStruct)
+	pageInfo, _ := option["pageInfo"].(lib.PageStruct)
 	res := lib.PageResult{
 		Data: result.Data,
 		Page: pageInfo,
