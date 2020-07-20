@@ -53,7 +53,15 @@ func (*SecondHandInfo) GetSecondHandUser(user *[]SecondHandInfo, where *SecondHa
 			getMany = getMany.Where(k, v)
 		}
 	}
-	getMany.Find(user)
+	//group
+	if data, ok := (*option)["group"]; ok {
+		getMany = getMany.Group(data.(string))
+	}
+	getMany = getMany.Find(user)
+	//count
+	if data, ok := (*option)["count"]; ok {
+		 getMany = getMany.Count(data)
+	}
 	if getMany.Error != nil {
 		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false

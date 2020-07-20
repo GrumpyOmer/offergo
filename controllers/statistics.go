@@ -83,49 +83,54 @@ func (s *StatisticsController) getSecondHandUserInfo(data *lib.GetUserStatistica
 	//获取当前二手用户数量
 	sel := []string{"openid"}
 	where := models.SecondHandInfo{}
+	//拿到当前二手用户数量
+	var currentUser int
 	//option
 	option := make(map[string]interface{})
 	wheres := make(map[string]interface{})
+	wheres["openid IS NOT NULL and openid != ?"] = ""
 	option["wheres"] = wheres
+	option["group"] = "openid"
+	option["count"] = &currentUser
 	result := s.getDBSecondHandInfo(sel, where, option)
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-	//去重操作
-	DuplicateRemoval := lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
-	//拿到当前二手用户数量
-	currentUser := len(DuplicateRemoval.([]models.SecondHandInfo))
 
 	//获取当月1号二手用户数量
 
 	sel = []string{"openid"}
 	where = models.SecondHandInfo{}
+	//拿到当月1号二手用户数量
+	var currentMonthUser int
 	//option
 	wheres["post_at <= ?"] = lib.MonthOneDay()
+	wheres["openid IS NOT NULL and openid != ?"] = ""
 	option["wheres"] = wheres
+	option["group"] = "openid"
+	option["count"] = &currentMonthUser
+
 	result = s.getDBSecondHandInfo(sel, where, option)
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-	//去重操作
-	DuplicateRemoval = lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
-	//拿到当月1号二手用户数量
-	currentMonthUser := len(DuplicateRemoval.([]models.SecondHandInfo))
 
 	//获取上个月1号二手数量
 	sel = []string{"openid"}
 	where = models.SecondHandInfo{}
+	//拿到上个月1号二手用户数量
+	var lastMonthUser int
 	//option
 	wheres["post_at <= ?"] = lib.LastMonthOneDay()
+	wheres["openid IS NOT NULL and openid != ?"] = ""
 	option["wheres"] = wheres
+	option["group"] = "openid"
+	option["count"] = &lastMonthUser
 	result = s.getDBSecondHandInfo(sel, where, option)
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-	//去重操作
-	DuplicateRemoval = lib.DuplicateRemoval(result.Data.([]models.SecondHandInfo), result.Data.([]models.SecondHandInfo)[0])
-	//拿到上个月1号二手用户数量
-	lastMonthUser := len(DuplicateRemoval.([]models.SecondHandInfo))
+
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
 	data.SecondHandUser = lib.GetUserStatisticalStruct{

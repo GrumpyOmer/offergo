@@ -5,10 +5,10 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	_ "net/http/pprof"
 	"offergo/connect"
 	"offergo/log"
 	_ "offergo/routers"
+	_ "net/http/pprof"
 	"offergo/ws"
 	"time"
 )
