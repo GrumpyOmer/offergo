@@ -44,7 +44,7 @@ func (s *SzUser) GetStatisticsSzUser(monthOneDay string, LastMonthOneDay string)
 	}
 	var result res
 	responseResult := make(map[string]interface{})
-	db := connect.Getdb()
+	db := connect.GetHkokDb()
 	//当前用户数量
 	db.Raw("select COUNT(member_code) as current_num from (select member_code,COUNT(DISTINCT member_code) from (select member_code from mb_parcel_info union all select user_id as member_code from sz_user) as d GROUP BY member_code) as c").
 		First(&result)

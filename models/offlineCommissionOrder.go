@@ -42,7 +42,7 @@ func (*OfflineCommissionOrder) TableName() string {
 
 //获取待寄待取付费者信息(多条)
 func (*OfflineCommissionOrder) GetOfflineCommission(user *[]OfflineCommissionOrder, where *OfflineCommissionOrder, sel []string, option *map[string]interface{}) (string, bool) {
-	getOne := connect.Getdb().
+	getOne := connect.GetHkokDb().
 		Select(sel).
 		Where(where)
 	//wheres

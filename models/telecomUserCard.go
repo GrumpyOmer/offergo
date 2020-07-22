@@ -48,7 +48,7 @@ func (*TelecomUserCard) TableName() string {
 
 //获取大K卡用户信息(多条)
 func (*TelecomUserCard) GetTelecomUser(user *[]TelecomUserCard, where *TelecomUserCard, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Gettdb().
+	getMany := connect.GetTelecomDb().
 		Select(sel).
 		Where(where)
 	//wheres

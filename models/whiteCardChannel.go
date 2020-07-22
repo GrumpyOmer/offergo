@@ -28,7 +28,7 @@ func (*WhiteCardChannel) TableName() string {
 
 //获取白卡渠道列表
 func (*WhiteCardChannel) GetWhiteCardChannel(result *[]WhiteCardChannel, where *WhiteCardChannel, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Gettdb().
+	getMany := connect.GetTelecomDb().
 		Table("whiteCardChannel").
 		Select(sel).
 		Where(where)
@@ -101,7 +101,7 @@ func (*WhiteCardChannel) GetWhiteCardChannel(result *[]WhiteCardChannel, where *
 
 //新增白卡渠道
 func (*WhiteCardChannel) CreateWhiteCardChannel(data *WhiteCardChannel) (string, bool) {
-	create := connect.Gettdb().
+	create := connect.GetTelecomDb().
 		Omit("status").
 		Create(data)
 	if create.Error != nil {
@@ -113,7 +113,7 @@ func (*WhiteCardChannel) CreateWhiteCardChannel(data *WhiteCardChannel) (string,
 
 //修改白卡渠道状态
 func (*WhiteCardChannel) UpdateWhiteCardChannel(where map[string]interface{}, update *map[string]interface{}) (string, bool) {
-	updates := connect.Gettdb().Table("whiteCardChannel")
+	updates := connect.GetTelecomDb().Table("whiteCardChannel")
 	for k, v := range where {
 		if v == nil {
 			updates = updates.Where(k)

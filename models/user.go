@@ -125,7 +125,7 @@ func (*User) TableName() string {
 
 //获取用户信息(多个)
 func (*User) GetUser(user *[]User, where *User, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Getdb().
+	getMany := connect.GetHkokDb().
 		Select(sel).
 		Where(where)
 	//wheres

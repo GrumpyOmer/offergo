@@ -43,7 +43,7 @@ func (*SecondHandInfo) TableName() string {
 
 //获取二手用户信息(多个)
 func (*SecondHandInfo) GetSecondHandUser(user *[]SecondHandInfo, where *SecondHandInfo, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Getdb().
+	getMany := connect.GetHkokDb().
 		Select(sel).
 		Where(where)
 
@@ -60,7 +60,7 @@ func (*SecondHandInfo) GetSecondHandUser(user *[]SecondHandInfo, where *SecondHa
 	getMany = getMany.Find(user)
 	//count
 	if data, ok := (*option)["count"]; ok {
-		 getMany = getMany.Count(data)
+		getMany = getMany.Count(data)
 	}
 	if getMany.Error != nil {
 		log.LogInfo.Error(getMany.Error.Error())

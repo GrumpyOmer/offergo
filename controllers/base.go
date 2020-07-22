@@ -4,11 +4,10 @@ import (
 	"github.com/astaxie/beego"
 )
 
-
 //响应结构体
 type result struct {
-	Code int `json:"code"`
-	Msg  string `json:"msg"`
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
 	Data interface{} `json:"data"`
 }
 

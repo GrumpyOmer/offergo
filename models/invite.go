@@ -33,7 +33,7 @@ func (*Invite) TableName() string {
 
 //获取自取点列表
 func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Getdb().
+	getMany := connect.GetHkokDb().
 		Table("invite").
 		Select(sel).
 		Where(where)
@@ -107,12 +107,12 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 
 //清空自取点列表
 func (*Invite) DeleteInviteList() {
-	connect.Getdb().Delete(Invite{})
+	connect.GetHkokDb().Delete(Invite{})
 }
 
 //修改自取点信息
 func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string]interface{}) (string, bool) {
-	updates := connect.Getdb().Table("invite")
+	updates := connect.GetHkokDb().Table("invite")
 	for k, v := range where {
 		if v == nil {
 			updates = updates.Where(k)
@@ -132,10 +132,10 @@ func (*Invite) UpdateInviteInfo(where map[string]interface{}, update *map[string
 }
 
 //insert many records
-func(*Invite) InsertManyRecords(sql string) (string, bool) {
-	result:= connect.Getdb().Exec(sql)
+func (*Invite) InsertManyRecords(sql string) (string, bool) {
+	result := connect.GetHkokDb().Exec(sql)
 	if result.Error == nil {
-		return "批量添加成功",true
+		return "批量添加成功", true
 	}
-	return result.Error.Error(),false
+	return result.Error.Error(), false
 }

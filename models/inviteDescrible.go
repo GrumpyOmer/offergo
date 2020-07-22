@@ -17,7 +17,7 @@ func (*InviteDescrible) TableName() string {
 
 //修改自定义用户描述
 func (*InviteDescrible) UpdateInviteDescribleInfo(where map[string]interface{}, update *map[string]interface{}) (string, bool) {
-	updates := connect.Getdb().Table("invite_describle")
+	updates := connect.GetHkokDb().Table("invite_describle")
 	for k, v := range where {
 		if v == nil {
 			updates = updates.Where(k)
@@ -38,7 +38,7 @@ func (*InviteDescrible) UpdateInviteDescribleInfo(where map[string]interface{}, 
 
 //查看自定义用户描述
 func (*InviteDescrible) GetInviteDescribleInfo(where map[string]interface{}, describle *InviteDescrible) (string, bool) {
-	find := connect.Getdb().Table("invite_describle")
+	find := connect.GetHkokDb().Table("invite_describle")
 	for k, v := range where {
 		if v == nil {
 			find = find.Where(k)
@@ -59,7 +59,7 @@ func (*InviteDescrible) GetInviteDescribleInfo(where map[string]interface{}, des
 
 //新增用户自定义描述
 func (*InviteDescrible) AddInviteDescribleInfo(describle *InviteDescrible) (string, bool) {
-	add := connect.Getdb().Table("invite_describle").Create(describle)
+	add := connect.GetHkokDb().Table("invite_describle").Create(describle)
 	row := add.RowsAffected
 	if row == 0 {
 		return "新增失败", false

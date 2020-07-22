@@ -28,7 +28,7 @@ func (*OfflineCommissionVerify) TableName() string {
 
 //获取待寄待取发布者信息(多条)
 func (*OfflineCommissionVerify) GetOfflineCommission(user *[]OfflineCommissionVerify, where *OfflineCommissionVerify, sel []string, option *map[string]interface{}) (string, bool) {
-	getOne := connect.Getdb().
+	getOne := connect.GetHkokDb().
 		Select(sel).
 		Where(where)
 	//wheres

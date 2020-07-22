@@ -1,4 +1,4 @@
-package connect
+package internal
 
 import (
 	// "github.com/astaxie/beego/orm"
@@ -20,39 +20,39 @@ var mysql_telecom_password = beego.AppConfig.String("mysql_telecom_password")
 var mysql_telecom_host = beego.AppConfig.String("mysql_telecom_host")
 var mysql_telecom_dbname = beego.AppConfig.String("mysql_telecom_dbname")
 
-var db *gorm.DB
-var tdb *gorm.DB
+var hkokDb *gorm.DB
+var telecomDb *gorm.DB
 
-func Dbconnect() error {
+func HkokDbConnect() error {
 	var errors error
 	//连接香不香港DB实例
-	db, errors = gorm.Open("mysql", mysql_user+":"+mysql_password+"@"+"("+mysql_host+")/"+mysql_dbname+"?charset=utf8&parseTime=True&loc=Local")
+	hkokDb, errors = gorm.Open("mysql", mysql_user+":"+mysql_password+"@"+"("+mysql_host+")/"+mysql_dbname+"?charset=utf8&parseTime=True&loc=Local")
 	return errors
 }
 
-func Tdbconnect() error {
+func TelecomDbConnect() error {
 	var errors error
 	//连接大K卡DB实例
-	tdb, errors = gorm.Open("mysql", mysql_telecom_user+":"+mysql_telecom_password+"@"+"("+mysql_telecom_host+")/"+mysql_telecom_dbname+"?charset=utf8&parseTime=True&loc=Local")
+	telecomDb, errors = gorm.Open("mysql", mysql_telecom_user+":"+mysql_telecom_password+"@"+"("+mysql_telecom_host+")/"+mysql_telecom_dbname+"?charset=utf8&parseTime=True&loc=Local")
 	return errors
 }
 
 //香不香港DB连接实例
-func Getdb() *gorm.DB {
-	return db
+func GetHkokDb() *gorm.DB {
+	return hkokDb
 }
 
 //大K卡DB连接实例
-func Gettdb() *gorm.DB {
-	return tdb
+func GetTelecomDb() *gorm.DB {
+	return telecomDb
 }
 
 //关闭香不香港DB连接
-func Dbexit() {
-	db.Close()
+func HkokDbExit() {
+	hkokDb.Close()
 }
 
 //关闭大K卡DB连接
-func Tdbexit() {
-	tdb.Close()
+func TelecomDbExit() {
+	telecomDb.Close()
 }

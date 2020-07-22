@@ -32,7 +32,7 @@ func (*TelecomCard) TableName() string {
 
 //获取cards信息(多条)
 func (*TelecomCard) GetTelecomCard(result *[]TelecomCard, where *TelecomCard, sel []string, option *map[string]interface{}) (string, bool) {
-	getMany := connect.Gettdb().
+	getMany := connect.GetTelecomDb().
 		Table("cards").
 		Select(sel).
 		Where(where)
@@ -101,7 +101,8 @@ func (*TelecomCard) GetTelecomCard(result *[]TelecomCard, where *TelecomCard, se
 
 //修改cards
 func (*TelecomCard) UpdateTelecomCard(where map[string]interface{}, update *map[string]interface{}) (string, bool) {
-	updates := connect.Gettdb().Table("cards")
+	updates := connect.GetTelecomDb().
+		Table("cards")
 	for k, v := range where {
 		if v == nil {
 			updates = updates.Where(k)
