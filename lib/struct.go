@@ -25,6 +25,13 @@ type GetUserStatisticalResponseData struct {
 }
 
 //page's struct
+type PageStruct struct {
+	From     int     `json:"from"`      //当前页
+	LastPage float64 `json:"last_page"` //最后页
+	PerPage  int     `json:"per_page"`  //每页条数
+	Total    float64 `json:"total"`     //总条数
+}
+
 type PageResult struct {
 	Data interface{}
 	Page PageStruct

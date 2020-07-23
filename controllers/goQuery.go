@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
-	"net/http"
 	"offergo/lib"
 	"strings"
 )
@@ -26,7 +25,7 @@ func (g *GoQueryController) ReplaceDocument() {
 	g.requestFilter(validation)
 
 	// 解析html
-	res, err := http.Get(url)
+	res, err := lib.ParseHtml(url)
 	if err != nil {
 		g.responseError(err.Error())
 	}
@@ -69,7 +68,7 @@ func (g *GoQueryController) SearchDocument() {
 	g.requestFilter(validation)
 
 	// 解析html
-	res, err := http.Get(url)
+	res, err := lib.ParseHtml(url)
 	if err != nil {
 		g.responseError(err.Error())
 	}
@@ -113,7 +112,7 @@ func (g *GoQueryController) ReplaceSearchDocument() {
 	g.requestFilter(validation)
 
 	// 解析html
-	res, err := http.Get(url)
+	res, err := lib.ParseHtml(url)
 	if err != nil {
 		g.responseError(err.Error())
 	}

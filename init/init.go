@@ -14,42 +14,13 @@ import (
 //程序初始化单元
 
 func init() {
-	//开启pprof协程 port: 9876
-	go func() {
-		fmt.Println("pprof start...")
-		fmt.Println(http.ListenAndServe(":9876", nil))
-	}()
+	initLog()
+	initPprof()
+	initRoute()
+	initWs()
+}
 
-	//开启websocket协程 port: 5678
-	go func() {
-		http.HandleFunc("/ws/server", ws.WebsocketStart)
-		err := http.ListenAndServe(":5678", nil)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-	}()
-
-	//初始化日志配置
-	// JSONFormatter格式
-	log.LogInfo.SetFormatter(&logrus.JSONFormatter{
-		PrettyPrint:     false,                 //格式化
-		TimestampFormat: "2006-01-02 15:04:05", //时间格式
-	})
-
-	// 输出文件设置，默认为os.stderr
-	today := time.Now().Format("2006-01-02")
-	fileName := "logs/" + today + ".log"
-
-	//添加log打印行号
-	log.LogInfo.SetReportCaller(true)
-
-	// 设置日志等级 只输出不低于当前级别是日志数据
-	log.LogInfo.SetLevel(logrus.TraceLevel)
-
-	//添加钩子
-	log.LogInfo.AddHook(log.NewLfsHook(fileName, 5, 1))
-
+func initRoute() {
 	//路由初始化
 	//hkokadmin
 	hkokadmin := beego.NewNamespace("/hkokadmin",
@@ -93,4 +64,46 @@ func init() {
 	beego.AddNamespace(hkokadmin)
 	beego.AddNamespace(websocket)
 	beego.AddNamespace(document)
+}
+
+func initPprof() {
+	//开启pprof协程 port: 9876
+	go func() {
+		fmt.Println("pprof start...")
+		fmt.Println(http.ListenAndServe(":9876", nil))
+	}()
+}
+
+func initWs() {
+	//开启websocket协程 port: 5678
+	go func() {
+		http.HandleFunc("/ws/server", ws.WebsocketStart)
+		err := http.ListenAndServe(":5678", nil)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+	}()
+}
+
+func initLog() {
+	//初始化日志配置
+	// JSONFormatter格式
+	log.LogInfo.SetFormatter(&logrus.JSONFormatter{
+		PrettyPrint:     false,                 //格式化
+		TimestampFormat: "2006-01-02 15:04:05", //时间格式
+	})
+
+	// 输出文件设置，默认为os.stderr
+	today := time.Now().Format("2006-01-02")
+	fileName := "logs/" + today + ".log"
+
+	//添加log打印行号
+	log.LogInfo.SetReportCaller(true)
+
+	// 设置日志等级 只输出不低于当前级别是日志数据
+	log.LogInfo.SetLevel(logrus.TraceLevel)
+
+	//添加钩子
+	log.LogInfo.AddHook(log.NewLfsHook(fileName, 5, 1))
 }
