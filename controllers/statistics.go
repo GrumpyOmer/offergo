@@ -31,6 +31,7 @@ func (s *StatisticsController) GetUserStatistical() {
 		"TelecomCardActivationedUser":  s.getTelecomCardActivationedUserInfo,  //大K卡已激活总人数信息
 		"TelecomUsingUser":             s.getTelecomCardUseingUserInfo,        //正在使用的大k卡用户信息
 		"TelecomNewUser":               s.getTelecomCardNewUserInfo,           //新申请的大k卡用户信息
+		"KPlusUser":                    s.getKPlusUserInfo,                    //k_plus会员用户信息
 	}
 	//定义响应结构体
 	var result lib.GetUserStatisticalResponseData
@@ -605,16 +606,58 @@ func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *lib.GetU
 	return true, "ok"
 }
 
+//获取k_plus会员数量
+func (s *StatisticsController) getKPlusUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
+	sel := []string{"id"}
+	where := models.KPlusOrder{}
+	option := make(map[string]interface{})
+	wheres := make(map[string]interface{})
+	//获取当前的k+plus会员人数信息
+	wheres["pay_status = ?"] = 1
+	wheres["deleted_at IS NULL"] = nil
+	option["wheres"] = wheres
+	result := s.getDBKPlusUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+	//获取当前已有的k+plus总人数数量
+	currentUser := len(result.Data.([]models.KPlusOrder))
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
+	result = s.getDBKPlusUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+	//获取当月1号k+plus用户数量
+	currentMonthUser := len(result.Data.([]models.KPlusOrder))
+	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
+	result = s.getDBKPlusUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+	//获取上月1号k+plus用户数量
+	lastMonthUser := len(result.Data.([]models.KPlusOrder))
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
+	data.KPlusUser = lib.GetUserStatisticalStruct{
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "k+plus会员总人数",
+	}
+	return true, "ok"
+}
+
 func (s *StatisticsController) getDBUserInfo(sel []string, where models.User, option map[string]interface{}) result {
 	//获取微信用户信息
 	//result user
-	var user []models.User
+	var resultStruct []models.User
 
-	result, ok := new(models.User).GetUser(&user, &where, sel, &option)
+	result, ok := new(models.User).GetUser(&resultStruct, &where, sel, &option)
 	if !ok {
 		return s.error(result)
 	}
-	return s.success(user)
+	return s.success(resultStruct)
 }
 
 func (s *StatisticsController) getDBSecondHandInfo(sel []string, where models.SecondHandInfo, option map[string]interface{}) result {
@@ -665,15 +708,30 @@ func (s *StatisticsController) getDBTelecomCardUsingUserInfo(sel []string, where
 	return s.success(resultStruct)
 }
 
+func (s *StatisticsController) getDBKPlusUserInfo(sel []string, where models.KPlusOrder, option map[string]interface{}) result {
+	//获取k+plus用户信息
+	//result plus
+	var resultStruct []models.KPlusOrder
+
+	result, ok := new(models.KPlusOrder).GetKPlusUser(&resultStruct, &where, sel, &option)
+	if !ok {
+		return s.error(result)
+	}
+	return s.success(resultStruct)
+}
+
 //计算增长率
 func (s *StatisticsController) getChance(current int, last int) float64 {
 	//增长数据目前是计算 30 天前的数据和当前数据对比，现在需要修改为计算上个月份 1 日和当前月份 1 日之间的增长率。
 	differ := current - last
 	//获取增长率
 	percentage := math.Round(float64(differ)/float64(last)*10000) / 100
-	//防止无效结果值NAN报错
+	//防止无效结果值报错
+	// NaN 代表 不是一个数 Not a number
 	isNaN := math.IsNaN(percentage)
-	if isNaN {
+	//Inf 代表 阶码溢出，前面的加减符号代表高地位溢出，说白了就是小数点位后面无限大，再别的地方使用不能很好的序列化
+	isInf := math.IsInf(percentage, 0)
+	if isNaN || isInf {
 		percentage = 0
 	}
 	return percentage
