@@ -147,7 +147,7 @@ func (s *StatisticsController) getSecondHandUserInfo(data *lib.GetUserStatistica
 //工作板块用户信息
 func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取工作板块用户数据
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	//option
 	option := make(map[string]interface{})
@@ -170,7 +170,7 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 //活动板块用户信息
 func (s *StatisticsController) getActivityUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取工作板块用户数据
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	//option
 	option := make(map[string]interface{})
@@ -194,7 +194,7 @@ func (s *StatisticsController) getActivityUserInfo(data *lib.GetUserStatisticalR
 func (s *StatisticsController) getIosUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取ios用户数据
 	//获取当前ios用户数量
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	//option
 	option := make(map[string]interface{})
@@ -210,7 +210,7 @@ func (s *StatisticsController) getIosUserInfo(data *lib.GetUserStatisticalRespon
 
 	//获取当月1号ios用户数量
 
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.MonthOneDay()
@@ -224,7 +224,7 @@ func (s *StatisticsController) getIosUserInfo(data *lib.GetUserStatisticalRespon
 	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号ios数量
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.LastMonthOneDay()
@@ -252,7 +252,7 @@ func (s *StatisticsController) getIosUserInfo(data *lib.GetUserStatisticalRespon
 func (s *StatisticsController) getAndroidUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取android用户数据
 	//获取当前android用户数量
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	//option
 	option := make(map[string]interface{})
@@ -268,7 +268,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *lib.GetUserStatisticalRe
 
 	//获取当月1号android用户数量
 
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.MonthOneDay()
@@ -282,7 +282,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *lib.GetUserStatisticalRe
 	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号android数量
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.LastMonthOneDay()
@@ -310,7 +310,7 @@ func (s *StatisticsController) getAndroidUserInfo(data *lib.GetUserStatisticalRe
 func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取微信用户数据
 	//获取当前用户数量
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	//option
 	option := make(map[string]interface{})
@@ -326,7 +326,7 @@ func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalRes
 
 	//获取当月1号微信用户数量
 
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.MonthOneDay()
@@ -340,7 +340,7 @@ func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalRes
 	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号微信数量
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.LastMonthOneDay()
@@ -378,7 +378,7 @@ func (s *StatisticsController) getParcelUserInfo(data *lib.GetUserStatisticalRes
 
 //获取app总用户数量
 func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
-	sel := []string{"sex"}
+	sel := []string{"*"}
 	where := models.User{}
 	option := make(map[string]interface{})
 	wheres := make(map[string]interface{})
@@ -394,7 +394,7 @@ func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalRes
 	currentUser := len(result.Data.([]models.User))
 	//获取当月1号APP用户数量
 
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.MonthOneDay()
@@ -407,7 +407,7 @@ func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalRes
 	currentMonthUser := len(result.Data.([]models.User))
 
 	//获取上个月1号APP用户数量
-	sel = []string{"sex"}
+	sel = []string{"*"}
 	where = models.User{}
 	//option
 	wheres["created_at <= ?"] = lib.LastMonthOneDay()
