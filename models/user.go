@@ -126,6 +126,7 @@ func (*User) TableName() string {
 //获取用户信息(多个)
 func (*User) GetUser(user *[]User, where *User, sel []string, option *map[string]interface{}) (string, bool) {
 	getMany := connect.GetHkokDb().
+		Table("register_info").
 		Select(sel).
 		Where(where)
 	//wheres
@@ -151,6 +152,12 @@ func (*User) GetUser(user *[]User, where *User, sel []string, option *map[string
 	}
 
 	getMany.Find(user)
+
+	//Count
+	if data, ok := (*option)["count"]; ok {
+		getMany.Count(data)
+	}
+
 	if getMany.Error != nil {
 		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
