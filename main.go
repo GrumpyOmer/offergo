@@ -19,8 +19,8 @@ func main() {
 		defer connect.InitRedis()()
 
 		//是否开启打印sql
-		//connect.Getdb().LogMode(true)
-		//connect.Gettdb().LogMode(true)
+		//connect.GetHkokDb().LogMode(true)
+		//connect.GetTelecomDb().LogMode(true)
 	}
 	beego.Run()
 }
