@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/jinzhu/gorm"
 	"offergo/connect"
 	"offergo/lib"
 	"offergo/log"
@@ -59,6 +60,12 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 		}
 	}
 
+	//search (where (...or...))
+	if data, ok := (*option)["search"]; ok {
+		key_word := data.(string)
+		getMany = getMany.Scopes(fuzzyQuery(key_word))
+	}
+
 	//order by
 	if data, ok := (*option)["orderBy"]; ok {
 		getMany = getMany.Order(data)
@@ -103,6 +110,13 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 	}
 
 	return "查询成功", true
+}
+
+//模糊搜索（invite_name/invite_id）
+func fuzzyQuery(key_word string) func (db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("invite_id like ? Or invite_name like ?", key_word, key_word)
+	}
 }
 
 //清空自取点列表
