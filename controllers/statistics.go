@@ -145,23 +145,59 @@ func (s *StatisticsController) getSecondHandUserInfo(data *lib.GetUserStatistica
 //工作板块用户信息
 func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	//获取工作板块用户数据
-	sel := []string{"user_id"}
-	where := models.User{}
-	var CurrentUser int
+
+	//获取工作板块用户数量
+	sel := []string{"id"}
+	where := models.JobSubscribe{}
+	//拿到当前工作板块用户数量
+	var currentUser int
 	//option
 	option := make(map[string]interface{})
 	wheres := make(map[string]interface{})
-	wheres["job_subscriber = ?"] = "1"
-	wheres["openid IS NOT NUll"] = nil
+	wheres["deleted_at is NULL"] = nil
 	option["wheres"] = wheres
-	option["count"] = &CurrentUser
-	result := s.getDBUserInfo(sel, where, option)
+	option["count"] = &currentUser
+	result := s.getDBJobUserInfo(sel, where, option)
 	if result.Code == 400 {
 		return false, result.Msg
 	}
+
+	//获取当月1号工作板块用户数量
+
+	sel = []string{"id"}
+	where = models.JobSubscribe{}
+	//拿到当月1号工作板块用户数量
+	var currentMonthUser int
+	//option
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
+	option["wheres"] = wheres
+	option["count"] = &currentMonthUser
+	result = s.getDBJobUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取上个月工作板块二手数量
+	sel = []string{"id"}
+	where = models.JobSubscribe{}
+	//拿到上个月1号工作板块用户数量
+	var lastMonthUser int
+	//option
+	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
+	option["wheres"] = wheres
+	option["count"] = &lastMonthUser
+	result = s.getDBJobUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
 	data.JobBookUser = lib.GetUserStatisticalStruct{
-		CurrentUser: CurrentUser,
-		Text:        "工作板块订阅用户",
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "工作板块订阅用户",
 	}
 	return true, "ok"
 }
@@ -759,6 +795,17 @@ func (s *StatisticsController) getDBKPlusUserInfo(sel []string, where models.KPl
 	var resultStruct []models.KPlusOrder
 
 	result, ok := new(models.KPlusOrder).GetKPlusUser(&resultStruct, &where, sel, &option)
+	if !ok {
+		return s.error(result)
+	}
+	return s.success(resultStruct)
+}
+
+func (s *StatisticsController) getDBJobUserInfo(sel []string, where models.JobSubscribe, option map[string]interface{}) result{
+	//获取工作板块用户信息
+	//result job
+	var resultStruct []models.JobSubscribe
+	result, ok := new(models.JobSubscribe).GetJobSubscribe(&resultStruct, &where, sel, &option)
 	if !ok {
 		return s.error(result)
 	}
