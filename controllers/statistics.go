@@ -197,7 +197,7 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:             "工作板块用户",
+		Text:             "工作板块订阅用户",
 	}
 	return true, "ok"
 }
