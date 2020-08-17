@@ -169,7 +169,7 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 	//拿到当月1号工作板块用户数量
 	var currentMonthUser int
 	//option
-	wheres["created_at <= ?"] = lib.MonthLastDayUnix()
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
 	option["wheres"] = wheres
 	option["count"] = &currentMonthUser
 	result = s.getDBJobUserInfo(sel, where, option)
