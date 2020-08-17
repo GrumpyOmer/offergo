@@ -42,16 +42,17 @@ func (*OfflineCommissionOrder) TableName() string {
 
 //获取待寄待取付费者信息(多条)
 func (*OfflineCommissionOrder) GetOfflineCommission(user *[]OfflineCommissionOrder, where *OfflineCommissionOrder, sel []string, option *map[string]interface{}) (string, bool) {
-	getOne := connect.GetHkokDb().
+	getMany := connect.GetHkokDb().
+		Table("offline_commission_order").
 		Select(sel).
 		Where(where)
 	//wheres
 	if data, ok := (*option)["wheres"]; ok && data != "" {
 		for k, v := range data.(map[string]interface{}) {
 			if v == nil {
-				getOne = getOne.Where(k)
+				getMany = getMany.Where(k)
 			} else {
-				getOne = getOne.Where(k, v)
+				getMany = getMany.Where(k, v)
 			}
 		}
 	}
@@ -60,16 +61,22 @@ func (*OfflineCommissionOrder) GetOfflineCommission(user *[]OfflineCommissionOrd
 	if data, ok := (*option)["or"]; ok && data != "" {
 		for k, v := range data.(map[string]interface{}) {
 			if v == nil {
-				getOne = getOne.Or(k)
+				getMany = getMany.Or(k)
 			} else {
-				getOne = getOne.Or(k, v)
+				getMany = getMany.Or(k, v)
 			}
 		}
 	}
 
-	getOne.Find(user)
-	if getOne.Error != nil {
-		log.LogInfo.Error(getOne.Error.Error())
+	getMany.Find(user)
+
+	//Count
+	if data, ok := (*option)["count"]; ok {
+		getMany.Count(data)
+	}
+
+	if getMany.Error != nil {
+		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
 	}
 	return "查询成功", true
