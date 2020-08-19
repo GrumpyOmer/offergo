@@ -30,6 +30,7 @@ func (k *KPlusOrder) TableName() string {
 //获取k_plus用户 (多个)
 func (*KPlusOrder) GetKPlusUser(user *[]KPlusOrder, where *KPlusOrder, sel []string, option *map[string]interface{}) (string, bool) {
 	getMany := connect.GetHkokDb().
+		Table("k_plus_order").
 		Select(sel).
 		Where(where)
 
@@ -48,8 +49,8 @@ func (*KPlusOrder) GetKPlusUser(user *[]KPlusOrder, where *KPlusOrder, sel []str
 		getMany = getMany.Group(data.(string))
 	}
 	getMany = getMany.Find(user)
-	//count
 
+	//count
 	if data, ok := (*option)["count"]; ok {
 		getMany = getMany.Count(data)
 	}

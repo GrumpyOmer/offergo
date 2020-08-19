@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	"offergo/connect/internal"
 	"offergo/log"
@@ -28,8 +29,20 @@ func InitTelecomDb() func() {
 	}
 }
 
+func InitHkokJobDb() func() {
+	err := internal.HkokJobDbConnect()
+	if err != nil {
+		log.LogInfo.Info(err.Error())
+		panic(err.Error())
+	}
+	return func() {
+		internal.HkokJobDbExit()
+	}
+}
+
+//redis连接实例
 func InitRedis() func() {
-	err := internal.InitRedis()
+	err := internal.RedisConnect()
 	if err != nil {
 		log.LogInfo.Info(err.Error())
 		panic(err.Error())
@@ -47,4 +60,14 @@ func GetHkokDb() *gorm.DB {
 //大K卡DB连接实例
 func GetTelecomDb() *gorm.DB {
 	return internal.GetTelecomDb()
+}
+
+//redis连接实例
+func GetRedisInstance() *redis.Conn {
+	return internal.GetRedisInstance()
+}
+
+//香不香港工作板块DB连接实例
+func GetHkokJobDb() *gorm.DB {
+	return internal.GetHkokJobDb()
 }

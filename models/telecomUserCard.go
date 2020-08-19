@@ -49,6 +49,7 @@ func (*TelecomUserCard) TableName() string {
 //获取大K卡用户信息(多条)
 func (*TelecomUserCard) GetTelecomUser(user *[]TelecomUserCard, where *TelecomUserCard, sel []string, option *map[string]interface{}) (string, bool) {
 	getMany := connect.GetTelecomDb().
+		Table("user_card").
 		Select(sel).
 		Where(where)
 	//wheres
@@ -80,6 +81,10 @@ func (*TelecomUserCard) GetTelecomUser(user *[]TelecomUserCard, where *TelecomUs
 		}
 	}
 	getMany.Find(user)
+	//Count
+	if data, ok := (*option)["count"]; ok {
+		getMany.Count(data)
+	}
 	if getMany.Error != nil {
 		log.LogInfo.Error(getMany.Error.Error())
 		return "查询失败", false
