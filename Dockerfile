@@ -3,7 +3,7 @@ FROM golang:1.14.2-alpine3.11 as base
 FROM alpine:3.12.0 as runner
 
 FROM base as module
-ENV GOPROXY https://go.likeli.top
+ENV GOPROXY https://mirrors.aliyun.com/goproxy/
 ENV GO111MODULE on
 WORKDIR /app
 ADD go.mod .
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod,id=offergo,sharing=locked \
 
 
 FROM base as builder
-ENV GOPROXY https://go.likeli.top
+ENV GOPROXY https://mirrors.aliyun.com/goproxy/
 ENV GO111MODULE on
 WORKDIR /app
 COPY . .
