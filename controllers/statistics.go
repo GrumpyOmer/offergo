@@ -5,6 +5,7 @@ import (
 	"offergo/lib"
 	"offergo/models"
 	"reflect"
+	"strconv"
 	"sync"
 )
 
@@ -154,7 +155,6 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 	//option
 	option := make(map[string]interface{})
 	wheres := make(map[string]interface{})
-	wheres["deleted_at is NULL"] = nil
 	option["wheres"] = wheres
 	option["count"] = &currentUser
 	result := s.getDBJobUserInfo(sel, where, option)
@@ -169,7 +169,9 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 	//拿到当月1号工作板块用户数量
 	var currentMonthUser int
 	//option
-	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	wheres["(deleted_at > "+strconv.FormatInt(lib.MonthOneDayUnix(), 10)+" and created_at <= "+strconv.FormatInt(lib.MonthOneDayUnix(), 10)+") or (deleted_at is null and created_at <= "+strconv.FormatInt(lib.MonthOneDayUnix(), 10)+")"] = nil
 	option["wheres"] = wheres
 	option["count"] = &currentMonthUser
 	result = s.getDBJobUserInfo(sel, where, option)
@@ -183,7 +185,9 @@ func (s *StatisticsController) getJobUserInfo(data *lib.GetUserStatisticalRespon
 	//拿到上个月1号工作板块用户数量
 	var lastMonthUser int
 	//option
-	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	wheres["(deleted_at > "+strconv.FormatInt(lib.LastMonthOneDayUnix(), 10)+" and created_at <= "+strconv.FormatInt(lib.LastMonthOneDayUnix(), 10)+") or (deleted_at is null and created_at <= "+strconv.FormatInt(lib.LastMonthOneDayUnix(), 10)+")"] = nil
 	option["wheres"] = wheres
 	option["count"] = &lastMonthUser
 	result = s.getDBJobUserInfo(sel, where, option)
