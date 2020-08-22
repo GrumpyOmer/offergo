@@ -25,7 +25,8 @@ func (j *JobSubscribe) GetJobSubscribe(user *[]JobSubscribe, where *JobSubscribe
 	getMany := connect.GetHkokJobDb().
 		Table("job_subscribe").
 		Select(sel).
-		Where(where)
+		Where(where).
+		Unscoped()
 	//wheres
 	if data, ok := (*option)["wheres"]; ok && data != "" {
 		for k, v := range data.(map[string]interface{}) {
