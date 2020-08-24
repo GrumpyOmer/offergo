@@ -612,13 +612,10 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 	var currentUser int
 	//获取当前新申请的人数信息
 	startTime := lib.MonthOneDay()
-	//当月最后一天时间戳
-	endTime := lib.MonthLastDay()
 	wheres["applications.apply_status >= ?"] = 3
 	wheres["applications.apply_status != ?"] = -1
 	wheres["user_card.type = ?"] = "BUY"
 	wheres["applications.created_at >= ?"] = startTime
-	wheres["applications.created_at <= ?"] = endTime
 
 	join["join `applications` on applications.user_id = user_card.user_id"] = nil
 	option["wheres"] = wheres
@@ -628,9 +625,57 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 	if result.Code == 400 {
 		return false, result.Msg
 	}
+	// 本月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	join = make(map[string]interface{})
+	//获取当月一号人数数量
+	var currentMonthUser int
+	//本月第一天文本时间
+	endTime := lib.MonthOneDay()
+	wheres["applications.apply_status >= ?"] = 3
+	wheres["applications.apply_status != ?"] = -1
+	wheres["user_card.type = ?"] = "BUY"
+	wheres["applications.created_at <= ?"] = endTime
 
+	join["join `applications` on applications.user_id = user_card.user_id"] = nil
+	option["wheres"] = wheres
+	option["join"] = join
+	option["count"] = &currentMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//上月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	join = make(map[string]interface{})
+	//获取上月一号人数数量
+	var lastMonthUser int
+	//上月1号文本时间
+	endTime = lib.LastMonthOneDay()
+	wheres["applications.apply_status >= ?"] = 3
+	wheres["applications.apply_status != ?"] = -1
+	wheres["user_card.type = ?"] = "BUY"
+	wheres["applications.created_at <= ?"] = endTime
+
+	join["join `applications` on applications.user_id = user_card.user_id"] = nil
+	option["wheres"] = wheres
+	option["join"] = join
+	option["count"] = &lastMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
 	data.TelecomNewUser = lib.GetUserStatisticalStruct{
 		CurrentUser: currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
 		Text:        "大K卡新申请人数",
 	}
 	return true, "ok"
