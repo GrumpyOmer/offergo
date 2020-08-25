@@ -17,20 +17,22 @@ type statisticalFunc func(*lib.GetUserStatisticalResponseData) (bool, interface{
 func (s *StatisticsController) GetUserStatistical() {
 	//当前请求需要用到goroutine的方法集合
 	var funcs = map[string]statisticalFunc{
-		"WxUser":                       s.getWechatUserInfo,                   //微信用户信息
-		"AppUser":                      s.getAllAppUserInfo,                   //总APP用户信息
-		"IosUser":                      s.getIosUserInfo,                      //ios用户信息
-		"AndroidUser":                  s.getAndroidUserInfo,                  //android用户信息
-		"JobBookUser":                  s.getJobUserInfo,                      //工作板块用户信息
-		"ActiveBookUser":               s.getActivityUserInfo,                 //活动板块用户信息
-		"MbUser":                       s.getParcelUserInfo,                   //集运信息
-		"SecondHandUser":               s.getSecondHandUserInfo,               //二手用户信息
-		"OfflineCommissionPublishUser": s.getOfflineCommissionPublishUserInfo, //待寄待取发布者用户信息
-		"OfflineCommissionPayUser":     s.getOfflineCommissionPayUserInfo,     //待寄待取付费者用户信息
-		"TelecomCardActivationedUser":  s.getTelecomCardActivationedUserInfo,  //大K卡已激活总人数信息
-		"TelecomUsingUser":             s.getTelecomCardUseingUserInfo,        //正在使用的大k卡用户信息
-		"TelecomNewUser":               s.getTelecomCardNewUserInfo,           //新申请的大k卡用户信息
-		"KPlusUser":                    s.getKPlusUserInfo,                    //k_plus会员用户信息
+		"WxUser":                           s.getWechatUserInfo,                       //微信用户信息
+		"AppUser":                          s.getAllAppUserInfo,                       //总APP用户信息
+		"IosUser":                          s.getIosUserInfo,                          //ios用户信息
+		"AndroidUser":                      s.getAndroidUserInfo,                      //android用户信息
+		"JobBookUser":                      s.getJobUserInfo,                          //工作板块用户信息
+		"ActiveBookUser":                   s.getActivityUserInfo,                     //活动板块用户信息
+		"MbUser":                           s.getParcelUserInfo,                       //集运信息
+		"SecondHandUser":                   s.getSecondHandUserInfo,                   //二手用户信息
+		"OfflineCommissionPublishUser":     s.getOfflineCommissionPublishUserInfo,     //待寄待取发布者用户信息
+		"OfflineCommissionPayUser":         s.getOfflineCommissionPayUserInfo,         //待寄待取付费者用户信息
+		"TelecomCardActivationedUser":      s.getTelecomCardActivationedUserInfo,      //大K卡已激活总人数信息
+		"TelecomUsingUser":                 s.getTelecomCardUseingUserInfo,            //正在使用的大k卡用户信息
+		"TelecomNewUser":                   s.getTelecomCardNewUserInfo,               //新申请的大k卡用户信息
+		"KPlusUser":                        s.getKPlusUserInfo,                        //k_plus会员用户信息
+		"TelecomBlankCardActivationedUser": s.getTelecomBlankCardActivationedUserInfo, //白卡激活用户信息
+		"TelecomBlankCardUsingUser":        s.getTelecomBlankCardUsingUserInfo,        //白卡开卡用户信息
 	}
 	//定义响应结构体
 	var result lib.GetUserStatisticalResponseData
@@ -376,7 +378,6 @@ func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalRes
 		return false, result.Msg
 	}
 
-
 	//获取当月1号微信用户数量
 
 	sel = []string{"user_id"}
@@ -392,7 +393,6 @@ func (s *StatisticsController) getWechatUserInfo(data *lib.GetUserStatisticalRes
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-
 
 	//获取上个月1号微信数量
 	sel = []string{"user_id"}
@@ -465,7 +465,6 @@ func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalRes
 		return false, result.Msg
 	}
 
-
 	//获取上个月1号APP用户数量
 	sel = []string{"user_id"}
 	where = models.User{}
@@ -479,7 +478,6 @@ func (s *StatisticsController) getAllAppUserInfo(data *lib.GetUserStatisticalRes
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
@@ -535,7 +533,6 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *lib.GetUser
 		return false, result.Msg
 	}
 
-
 	//获取当月1号所有付费者数量信息
 	//获取当月1号所有付费者数量信息
 	var currentMonthUser int
@@ -549,7 +546,6 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *lib.GetUser
 		return false, result.Msg
 	}
 
-
 	//获取上个月1号所有付费者数量信息
 	//拿到上个月1号所有付费者数量信息
 	var lastMonthUser int
@@ -562,7 +558,6 @@ func (s *StatisticsController) getOfflineCommissionPayUserInfo(data *lib.GetUser
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
@@ -597,6 +592,142 @@ func (s *StatisticsController) getTelecomCardUseingUserInfo(data *lib.GetUserSta
 	data.TelecomUsingUser = lib.GetUserStatisticalStruct{
 		CurrentUser: currentUser,
 		Text:        "大K卡正在使用人数",
+	}
+	return true, "ok"
+}
+
+//获取白卡激活用户信息
+func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
+	sel := []string{"id"}
+	where := models.TelecomUserCard{}
+	option := make(map[string]interface{})
+	wheres := make(map[string]interface{})
+	//获取当前新申请的人数数量
+	var currentUser int
+	//获取当前新申请的人数信息
+	startTime := lib.MonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["user_card.card_status = ?"] = 1
+
+	wheres["created_at >= ?"] = startTime
+
+	option["wheres"] = wheres
+	option["count"] = &currentUser
+	result := s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	// 本月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	//获取当月一号人数数量
+	var currentMonthUser int
+	//本月第一天文本时间
+	endTime := lib.MonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["user_card.card_status = ?"] = 1
+	wheres["created_at <= ?"] = endTime
+
+	option["wheres"] = wheres
+	option["count"] = &currentMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//上月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	//获取上月一号人数数量
+	var lastMonthUser int
+	//上月1号文本时间
+	endTime = lib.LastMonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["user_card.card_status = ?"] = 1
+	wheres["created_at <= ?"] = endTime
+
+	option["wheres"] = wheres
+	option["count"] = &lastMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
+	data.BlankCardActivationedInfo = lib.GetUserStatisticalStruct{
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "大K卡白卡激活人数",
+	}
+	return true, "ok"
+}
+
+//获取白卡开卡用户信息
+func (s *StatisticsController) getTelecomBlankCardUsingUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
+	sel := []string{"id"}
+	where := models.TelecomUserCard{}
+	option := make(map[string]interface{})
+	wheres := make(map[string]interface{})
+	//获取当前新申请的人数数量
+	var currentUser int
+	//获取当前新申请的人数信息
+	startTime := lib.MonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["created_at >= ?"] = startTime
+
+	option["wheres"] = wheres
+	option["count"] = &currentUser
+	result := s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	// 本月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	//获取当月一号人数数量
+	var currentMonthUser int
+	//本月第一天文本时间
+	endTime := lib.MonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["created_at <= ?"] = endTime
+
+	option["wheres"] = wheres
+	option["count"] = &currentMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//上月初
+	option = make(map[string]interface{})
+	wheres = make(map[string]interface{})
+	//获取上月一号人数数量
+	var lastMonthUser int
+	//上月1号文本时间
+	endTime = lib.LastMonthOneDayUnix()
+	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["created_at <= ?"] = endTime
+
+	option["wheres"] = wheres
+	option["count"] = &lastMonthUser
+	result = s.getDBTelecomCardUsingUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
+	data.BlankCardUsingInfo = lib.GetUserStatisticalStruct{
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "大K卡白卡开卡人数",
 	}
 	return true, "ok"
 }
@@ -672,11 +803,11 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
 	data.TelecomNewUser = lib.GetUserStatisticalStruct{
-		CurrentUser: currentUser,
+		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:        "大K卡新申请人数",
+		Text:             "大K卡新申请人数",
 	}
 	return true, "ok"
 }
@@ -716,7 +847,6 @@ func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *lib.GetU
 	if result.Code == 400 {
 		return false, result.Msg
 	}
-
 
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
@@ -850,7 +980,7 @@ func (s *StatisticsController) getDBKPlusUserInfo(sel []string, where models.KPl
 	return s.success(resultStruct)
 }
 
-func (s *StatisticsController) getDBJobUserInfo(sel []string, where models.JobSubscribe, option map[string]interface{}) result{
+func (s *StatisticsController) getDBJobUserInfo(sel []string, where models.JobSubscribe, option map[string]interface{}) result {
 	//获取工作板块用户信息
 	//result job
 	var resultStruct []models.JobSubscribe

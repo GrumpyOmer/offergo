@@ -13,6 +13,7 @@ var mysql_user = beego.AppConfig.String("mysql_user")
 var mysql_password = beego.AppConfig.String("mysql_password")
 var mysql_host = beego.AppConfig.String("mysql_host")
 var mysql_dbname = beego.AppConfig.String("mysql_dbname")
+
 //工作板块库名
 var mysql_job_dbname = beego.AppConfig.String("mysql_job_dbname")
 
