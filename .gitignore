@@ -2,7 +2,5 @@
 .DS_Store
 conf/
 logs/
-go.sum
-go.mod
 tmp/
 offergo
