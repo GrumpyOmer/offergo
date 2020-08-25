@@ -23,6 +23,8 @@ type GetUserStatisticalResponseData struct {
 	TelecomUsingUser             GetUserStatisticalStruct //正在使用的大k卡用户信息
 	TelecomNewUser               GetUserStatisticalStruct //新申请的大k卡用户信息
 	KPlusUser                    GetUserStatisticalStruct //k_plus会员用户信息
+	BlankCardActivationedInfo    GetUserStatisticalStruct //白卡激活用户信息
+	BlankCardUsingInfo           GetUserStatisticalStruct //白卡开卡用户信息
 }
 
 //page's struct

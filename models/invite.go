@@ -113,7 +113,7 @@ func (*Invite) GetInviteList(result *[]Invite, where *Invite, sel []string, opti
 }
 
 //模糊搜索（invite_name/invite_id）
-func fuzzyQuery(key_word string) func (db *gorm.DB) *gorm.DB {
+func fuzzyQuery(key_word string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("invite_id like ? Or invite_name like ?", key_word, key_word)
 	}

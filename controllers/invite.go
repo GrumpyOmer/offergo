@@ -39,7 +39,7 @@ func (i *InviteController) GetInviteList() {
 	option["pageInfo"] = nil
 	wheres := make(map[string]interface{})
 	if key_word != "" {
-		option["search"] = "%"+key_word+"%"
+		option["search"] = "%" + key_word + "%"
 	}
 	if status_err == nil {
 		wheres["status = ?"] = status
