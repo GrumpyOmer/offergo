@@ -28,11 +28,11 @@ func (s *StatisticsController) GetUserStatistical() {
 		"OfflineCommissionPublishUser":     s.getOfflineCommissionPublishUserInfo,     //待寄待取发布者用户信息
 		"OfflineCommissionPayUser":         s.getOfflineCommissionPayUserInfo,         //待寄待取付费者用户信息
 		"TelecomCardActivationedUser":      s.getTelecomCardActivationedUserInfo,      //大K卡已激活总人数信息
-		"TelecomUsingUser":                 s.getTelecomCardUseingUserInfo,            //正在使用的大k卡用户信息
-		"TelecomNewUser":                   s.getTelecomCardNewUserInfo,               //新申请的大k卡用户信息
-		"KPlusUser":                        s.getKPlusUserInfo,                        //k_plus会员用户信息
+		"TelecomNewUser":                   s.getTelecomCardNewUserInfo,               //付费申请的大k卡用户信息
+		"TelecomBlankCardUsingUser":        s.getTelecomBlankCardUsingUserInfo,        //白卡绑定用户信息
 		"TelecomBlankCardActivationedUser": s.getTelecomBlankCardActivationedUserInfo, //白卡激活用户信息
-		"TelecomBlankCardUsingUser":        s.getTelecomBlankCardUsingUserInfo,        //白卡开卡用户信息
+		"TelecomUsingUser":                 s.getTelecomCardUseingUserInfo,            //正在使用的大k卡用户信息
+		"KPlusUser":                        s.getKPlusUserInfo,                        //k_plus会员用户信息
 	}
 	//定义响应结构体
 	var result lib.GetUserStatisticalResponseData
@@ -605,11 +605,8 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
-	startTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["user_card.card_status = ?"] = 1
-
-	wheres["created_at >= ?"] = startTime
+	wheres["user_card.activate_date IS NOT NULL"] = nil
 
 	option["wheres"] = wheres
 	option["count"] = &currentUser
@@ -626,8 +623,7 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//本月第一天文本时间
 	endTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["user_card.card_status = ?"] = 1
-	wheres["created_at <= ?"] = endTime
+	wheres["activate_date <= ?"] = endTime
 
 	option["wheres"] = wheres
 	option["count"] = &currentMonthUser
@@ -644,8 +640,7 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//上月1号文本时间
 	endTime = lib.LastMonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["user_card.card_status = ?"] = 1
-	wheres["created_at <= ?"] = endTime
+	wheres["activate_date <= ?"] = endTime
 
 	option["wheres"] = wheres
 	option["count"] = &lastMonthUser
@@ -675,9 +670,7 @@ func (s *StatisticsController) getTelecomBlankCardUsingUserInfo(data *lib.GetUse
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
-	startTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["created_at >= ?"] = startTime
 
 	option["wheres"] = wheres
 	option["count"] = &currentUser
@@ -727,12 +720,12 @@ func (s *StatisticsController) getTelecomBlankCardUsingUserInfo(data *lib.GetUse
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:             "大K卡白卡开卡人数",
+		Text:             "大K卡白卡绑卡人数",
 	}
 	return true, "ok"
 }
 
-//获取大K卡新申请的人数
+//获取大K卡申请的人数
 func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"user_card.id"}
 	where := models.TelecomUserCard{}
@@ -742,11 +735,9 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
-	startTime := lib.MonthOneDay()
 	wheres["applications.apply_status >= ?"] = 3
 	wheres["applications.apply_status != ?"] = -1
 	wheres["user_card.type = ?"] = "BUY"
-	wheres["applications.created_at >= ?"] = startTime
 
 	join["join `applications` on applications.user_id = user_card.user_id"] = nil
 	option["wheres"] = wheres
@@ -807,7 +798,7 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:             "大K卡新申请人数",
+		Text:             "大K卡付费申请人数",
 	}
 	return true, "ok"
 }
