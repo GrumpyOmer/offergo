@@ -15,15 +15,10 @@ RUN --mount=type=cache,target=/go/pkg/mod,id=offergo,sharing=locked \
 	go mod download -x
 
 
-FROM base as builder
-ENV GOPROXY https://mirrors.aliyun.com/goproxy/
-ENV GO111MODULE on
+FROM module as builder
 WORKDIR /app
 COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod,id=offergo,sharing=locked \
-	sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
-	apk update && \
-	apk add git && \
 	go build
 
 
