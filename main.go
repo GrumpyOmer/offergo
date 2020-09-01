@@ -20,7 +20,7 @@ func main() {
 		//hkok工作板块数据库连接
 		defer connect.InitHkokJobDb()()
 		//是否开启打印sql
-		//connect.GetHkokDb().LogMode(true)
+		connect.GetHkokDb().LogMode(true)
 		//connect.GetTelecomDb().LogMode(true)
 		//connect.GetHkokJobDb().LogMode(true)
 	}

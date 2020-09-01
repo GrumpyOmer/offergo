@@ -37,6 +37,13 @@ func LastMonthOneDayUnix() int64 {
 	return lastMonthOneDay
 }
 
+//获取前月1号时间戳
+func PreMonthOneDayUnix() int64 {
+	year, month, _ := time.Now().Date()
+	lastMonthOneDay := time.Date(year, month, 1, 0, 0, 0, 0, time.Local).AddDate(0, -2, 0).Unix()
+	return lastMonthOneDay
+}
+
 //获取当月最后一天时间戳
 func MonthLastDayUnix() int64 {
 	year, month, _ := time.Now().Date()

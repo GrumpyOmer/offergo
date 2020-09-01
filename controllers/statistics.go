@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"math"
+	"offergo/connect"
 	"offergo/lib"
 	"offergo/models"
 	"reflect"
@@ -28,11 +29,13 @@ func (s *StatisticsController) GetUserStatistical() {
 		"OfflineCommissionPublishUser":     s.getOfflineCommissionPublishUserInfo,     //待寄待取发布者用户信息
 		"OfflineCommissionPayUser":         s.getOfflineCommissionPayUserInfo,         //待寄待取付费者用户信息
 		"TelecomCardActivationedUser":      s.getTelecomCardActivationedUserInfo,      //大K卡已激活总人数信息
-		"TelecomNewUser":                   s.getTelecomCardNewUserInfo,               //付费申请的大k卡用户信息
-		"TelecomBlankCardUsingUser":        s.getTelecomBlankCardUsingUserInfo,        //白卡绑定用户信息
-		"TelecomBlankCardActivationedUser": s.getTelecomBlankCardActivationedUserInfo, //白卡激活用户信息
 		"TelecomUsingUser":                 s.getTelecomCardUseingUserInfo,            //正在使用的大k卡用户信息
-		"KPlusUser":                        s.getKPlusUserInfo,                        //k_plus会员用户信息
+		"TelecomNewUser":                   s.getTelecomCardNewUserInfo,               //新申请的大k卡用户信息
+		"KPlusUser":                        s.getKPlusUserInfo,                        //k_plus会员全额用户信息
+		"TelecomBlankCardActivationedUser": s.getTelecomBlankCardActivationedUserInfo, //白卡激活用户信息
+		"TelecomBlankCardUsingUser":        s.getTelecomBlankCardUsingUserInfo,        //白卡开卡用户信息
+		"KPlusPrepaidUser":                 s.getKPlusPrepaidUserInfo,                 //k_plus会员分期用户信息
+		"KPlusAllUser":                     s.getKPlusAllUserInfo,                     //k_plus会员全部用户信息
 	}
 	//定义响应结构体
 	var result lib.GetUserStatisticalResponseData
@@ -605,8 +608,11 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
+	startTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["user_card.activate_date IS NOT NULL"] = nil
+	wheres["user_card.card_status = ?"] = 1
+
+	wheres["created_at >= ?"] = startTime
 
 	option["wheres"] = wheres
 	option["count"] = &currentUser
@@ -623,7 +629,8 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//本月第一天文本时间
 	endTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["activate_date <= ?"] = endTime
+	wheres["user_card.card_status = ?"] = 1
+	wheres["created_at <= ?"] = endTime
 
 	option["wheres"] = wheres
 	option["count"] = &currentMonthUser
@@ -640,7 +647,8 @@ func (s *StatisticsController) getTelecomBlankCardActivationedUserInfo(data *lib
 	//上月1号文本时间
 	endTime = lib.LastMonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
-	wheres["activate_date <= ?"] = endTime
+	wheres["user_card.card_status = ?"] = 1
+	wheres["created_at <= ?"] = endTime
 
 	option["wheres"] = wheres
 	option["count"] = &lastMonthUser
@@ -670,7 +678,9 @@ func (s *StatisticsController) getTelecomBlankCardUsingUserInfo(data *lib.GetUse
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
+	startTime := lib.MonthOneDayUnix()
 	wheres["user_card.type = ?"] = "BLANKCARD"
+	wheres["created_at >= ?"] = startTime
 
 	option["wheres"] = wheres
 	option["count"] = &currentUser
@@ -720,12 +730,12 @@ func (s *StatisticsController) getTelecomBlankCardUsingUserInfo(data *lib.GetUse
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:             "大K卡白卡绑卡人数",
+		Text:             "大K卡白卡开卡人数",
 	}
 	return true, "ok"
 }
 
-//获取大K卡申请的人数
+//获取大K卡新申请的人数
 func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"user_card.id"}
 	where := models.TelecomUserCard{}
@@ -735,9 +745,11 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 	//获取当前新申请的人数数量
 	var currentUser int
 	//获取当前新申请的人数信息
+	startTime := lib.MonthOneDay()
 	wheres["applications.apply_status >= ?"] = 3
 	wheres["applications.apply_status != ?"] = -1
 	wheres["user_card.type = ?"] = "BUY"
+	wheres["applications.created_at >= ?"] = startTime
 
 	join["join `applications` on applications.user_id = user_card.user_id"] = nil
 	option["wheres"] = wheres
@@ -798,7 +810,7 @@ func (s *StatisticsController) getTelecomCardNewUserInfo(data *lib.GetUserStatis
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
 		Percentage:       percentage,
-		Text:             "大K卡付费申请人数",
+		Text:             "大K卡新申请人数",
 	}
 	return true, "ok"
 }
@@ -851,7 +863,7 @@ func (s *StatisticsController) getTelecomCardActivationedUserInfo(data *lib.GetU
 	return true, "ok"
 }
 
-//获取k_plus会员数量
+//获取k_plus会员全款数量
 func (s *StatisticsController) getKPlusUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
 	sel := []string{"id"}
 	//获取当前已有的k+plus总人数数量
@@ -872,6 +884,7 @@ func (s *StatisticsController) getKPlusUserInfo(data *lib.GetUserStatisticalResp
 	//获取当月1号k+plus用户数量
 	var currentMonthUser int
 	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
+	wheres["created_at >= ?"] = lib.LastMonthOneDayUnix()
 	option["count"] = &currentMonthUser
 	result = s.getDBKPlusUserInfo(sel, where, option)
 	if result.Code == 400 {
@@ -881,6 +894,7 @@ func (s *StatisticsController) getKPlusUserInfo(data *lib.GetUserStatisticalResp
 	//获取上月1号k+plus用户数量
 	var lastMonthUser int
 	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
+	wheres["created_at >= ?"] = lib.PreMonthOneDayUnix()
 	option["count"] = &lastMonthUser
 	result = s.getDBKPlusUserInfo(sel, where, option)
 	if result.Code == 400 {
@@ -890,6 +904,94 @@ func (s *StatisticsController) getKPlusUserInfo(data *lib.GetUserStatisticalResp
 	//获取增长率
 	percentage := s.getChance(currentMonthUser, lastMonthUser)
 	data.KPlusUser = lib.GetUserStatisticalStruct{
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "k+plus会员全款总人数",
+	}
+	return true, "ok"
+}
+
+//获取k_plus分期数量
+func (s *StatisticsController) getKPlusPrepaidUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
+	sel := []string{"id"}
+	//获取当前已有的k+plus总人数数量
+	var currentUser int
+	where := models.KPlusPrepairdOrder{}
+	option := make(map[string]interface{})
+	wheres := make(map[string]interface{})
+	//获取当前的k+plus会员人数信息
+	wheres["pay_status = ?"] = 1
+	wheres["deleted_at IS NULL"] = nil
+	option["wheres"] = wheres
+	option["count"] = &currentUser
+	result := s.getDBKPlusPrepaidUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取当月1号k+plus用户数量
+	var currentMonthUser int
+	wheres["created_at <= ?"] = lib.MonthOneDayUnix()
+	wheres["created_at >= ?"] = lib.LastMonthOneDayUnix()
+	option["count"] = &currentMonthUser
+	result = s.getDBKPlusPrepaidUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取上月1号k+plus用户数量
+	var lastMonthUser int
+	wheres["created_at <= ?"] = lib.LastMonthOneDayUnix()
+	wheres["created_at >= ?"] = lib.PreMonthOneDayUnix()
+	option["count"] = &lastMonthUser
+	result = s.getDBKPlusPrepaidUserInfo(sel, where, option)
+	if result.Code == 400 {
+		return false, result.Msg
+	}
+
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
+	data.KPlusPrepaidUser = lib.GetUserStatisticalStruct{
+		CurrentUser:      currentUser,
+		CurrentMonthUser: currentMonthUser,
+		LastMonthUser:    lastMonthUser,
+		Percentage:       percentage,
+		Text:             "k+plus会员分期总人数",
+	}
+	return true, "ok"
+}
+
+//获取k_plus总数量（分期+全额）
+func (s *StatisticsController) getKPlusAllUserInfo(data *lib.GetUserStatisticalResponseData) (bool, interface{}) {
+	//获取当前已有的k+plus总人数数量
+	var currentUser int
+	rows, _ := connect.GetHkokDb().Raw("select user_id from k_plus_order where pay_status = ? and deleted_at is null union select user_id from k_plus_prepaid_order where pay_status = ? and deleted_at is null", 1, 1).Rows()
+	defer rows.Close()
+	for rows.Next() {
+		currentUser++
+	}
+
+	//获取当月1号k+plus用户数量
+	var currentMonthUser int
+	rows, _ = connect.GetHkokDb().Raw("select user_id from k_plus_order where pay_status = ? and created_at <= ? and created_at >= ? and deleted_at is null union select user_id from k_plus_prepaid_order where pay_status = ? and created_at <= ? and created_at >= ? and deleted_at is null", 1, lib.MonthOneDayUnix(), lib.LastMonthOneDayUnix(), 1, lib.MonthOneDayUnix(), lib.LastMonthOneDayUnix()).Rows()
+	defer rows.Close()
+	for rows.Next() {
+		currentMonthUser++
+	}
+
+	//获取上月1号k+plus用户数量
+	var lastMonthUser int
+	rowsss, _ := connect.GetHkokDb().Raw("select user_id from k_plus_order where pay_status = ? and created_at <= ? and created_at >= ? and deleted_at is null union select user_id from k_plus_prepaid_order where pay_status = ? and created_at <= ? and created_at >= ? and deleted_at is null", 1, lib.LastMonthOneDayUnix(), lib.PreMonthOneDayUnix(), 1, lib.LastMonthOneDayUnix(), lib.PreMonthOneDayUnix()).Rows()
+	defer rowsss.Close()
+	for rowsss.Next() {
+		lastMonthUser++
+	}
+
+	//获取增长率
+	percentage := s.getChance(currentMonthUser, lastMonthUser)
+	data.KPlusAllUser = lib.GetUserStatisticalStruct{
 		CurrentUser:      currentUser,
 		CurrentMonthUser: currentMonthUser,
 		LastMonthUser:    lastMonthUser,
@@ -960,11 +1062,23 @@ func (s *StatisticsController) getDBTelecomCardUsingUserInfo(sel []string, where
 }
 
 func (s *StatisticsController) getDBKPlusUserInfo(sel []string, where models.KPlusOrder, option map[string]interface{}) result {
-	//获取k+plus用户信息
+	//获取k+plus全款用户信息
 	//result plus
 	var resultStruct []models.KPlusOrder
 
 	result, ok := new(models.KPlusOrder).GetKPlusUser(&resultStruct, &where, sel, &option)
+	if !ok {
+		return s.error(result)
+	}
+	return s.success(resultStruct)
+}
+
+func (s *StatisticsController) getDBKPlusPrepaidUserInfo(sel []string, where models.KPlusPrepairdOrder, option map[string]interface{}) result {
+	//获取k+plus分期用户信息
+	//result plus
+	var resultStruct []models.KPlusPrepairdOrder
+
+	result, ok := new(models.KPlusPrepairdOrder).GetKPlusUser(&resultStruct, &where, sel, &option)
 	if !ok {
 		return s.error(result)
 	}
